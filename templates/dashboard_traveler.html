@@ -1,0 +1,756 @@
+{% extends "base.html" %}
+{% block title %}Tripoora - Explore the Heart of Maharashtra{% endblock %}
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modern-enhanced.css') }}">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&family=Playfair+Display:wght@700;900&display=swap');
+
+:root {
+    --sunset: #FF6B6B;
+    --ocean: #4ECDC4;
+    --sky: #45B7D1;
+    --forest: #2ECC71;
+    --gold: #F39C12;
+    --purple: #9B59B6;
+}
+
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
+body { 
+    font-family: 'Poppins', sans-serif !important; 
+    background: #fff !important;
+    overflow-x: hidden !important;
+}
+
+main {
+    margin-top: 0 !important;
+    min-height: auto !important;
+    padding: 0 !important;
+}
+
+/* Video Hero */
+.video-hero {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.video-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translateX(-50%) translateY(-50%);
+    z-index: 0;
+}
+
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.7), rgba(78, 205, 196, 0.7));
+    z-index: 1;
+}
+
+.hero-content-tourism {
+    position: relative;
+    z-index: 2;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    padding: 2rem;
+}
+
+.hero-badge-tourism {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    animation: fadeInDown 1s ease;
+}
+
+.hero-title-tourism {
+    font-family: 'Playfair Display', serif;
+    font-size: 6rem;
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    animation: fadeInUp 1s ease 0.3s both;
+}
+
+.hero-subtitle-tourism {
+    font-size: 1.8rem;
+    margin-bottom: 3rem;
+    font-weight: 300;
+    max-width: 800px;
+    animation: fadeInUp 1s ease 0.6s both;
+}
+
+.hero-cta-tourism {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeInUp 1s ease 0.9s both;
+}
+
+.btn-tourism {
+    padding: 1.3rem 3rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.4s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.btn-primary-tourism {
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    color: white;
+    box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+}
+
+.btn-primary-tourism:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 20px 50px rgba(255, 107, 107, 0.6);
+    color: white;
+}
+
+.btn-outline-tourism {
+    background: transparent;
+    color: white;
+    border: 3px solid white;
+}
+
+.btn-outline-tourism:hover {
+    background: white;
+    color: var(--sunset);
+}
+
+/* Floating Elements */
+.floating-icons {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.float-icon {
+    position: absolute;
+    font-size: 3rem;
+    opacity: 0.2;
+    animation: float 6s ease-in-out infinite;
+}
+
+.float-icon:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+.float-icon:nth-child(2) { top: 60%; right: 15%; animation-delay: 2s; }
+.float-icon:nth-child(3) { bottom: 20%; left: 20%; animation-delay: 4s; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-30px); }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Explore Section */
+.explore-section {
+    padding: 6rem 2rem;
+    background: linear-gradient(180deg, #f8f9fa 0%, #fff 100%);
+}
+
+.section-header-tourism {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 4rem;
+}
+
+.section-badge-tourism {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--sunset), var(--ocean));
+    color: white;
+    padding: 0.6rem 1.8rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.section-title-tourism {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    font-weight: 900;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+}
+
+.section-subtitle-tourism {
+    font-size: 1.3rem;
+    color: #666;
+}
+
+/* Category Cards */
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.category-card {
+    position: relative;
+    height: 400px;
+    border-radius: 25px;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    transition: all 0.5s;
+}
+
+.category-card:hover {
+    transform: translateY(-15px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+
+.category-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s;
+}
+
+.category-card:hover .category-img {
+    transform: scale(1.2);
+}
+
+.category-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 2.5rem;
+    color: white;
+}
+
+.category-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.category-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.category-desc {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+}
+
+.category-count {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Destinations Showcase */
+.destinations-showcase {
+    padding: 6rem 2rem;
+    background: white;
+}
+
+.destinations-masonry {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.destination-item {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    transition: all 0.4s;
+    cursor: pointer;
+}
+
+.destination-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+}
+
+.destination-item:nth-child(1) { grid-row: span 2; }
+.destination-item:nth-child(4) { grid-row: span 2; }
+
+.destination-img-showcase {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    object-fit: cover;
+    transition: transform 0.6s;
+}
+
+.destination-item:hover .destination-img-showcase {
+    transform: scale(1.15);
+}
+
+.destination-info-showcase {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.9));
+    color: white;
+}
+
+.destination-tag-showcase {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+}
+
+.destination-name-showcase {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.destination-location-showcase {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.9;
+}
+
+/* Experience Section */
+.experience-section {
+    padding: 6rem 2rem;
+    background: linear-gradient(135deg, var(--sunset), var(--purple));
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.experience-section::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 2px, transparent 2px);
+    background-size: 50px 50px;
+    animation: movePattern 30s linear infinite;
+}
+
+@keyframes movePattern {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+.experience-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.experience-item {
+    text-align: center;
+}
+
+.experience-icon {
+    width: 100px;
+    height: 100px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 3rem;
+    border: 3px solid rgba(255,255,255,0.3);
+}
+
+.experience-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+}
+
+.experience-desc {
+    opacity: 0.9;
+    line-height: 1.7;
+}
+
+/* Stats Counter */
+.stats-tourism {
+    padding: 5rem 2rem;
+    background: #1a1a1a;
+    color: white;
+}
+
+.stats-grid-tourism {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.stat-number-tourism {
+    font-size: 4.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--sunset), var(--ocean));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label-tourism {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* CTA Section */
+.cta-tourism {
+    padding: 6rem 2rem;
+    background: linear-gradient(135deg, var(--ocean), var(--sky));
+    color: white;
+    text-align: center;
+}
+
+.cta-title-tourism {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+}
+
+.cta-text-tourism {
+    font-size: 1.4rem;
+    margin-bottom: 3rem;
+    opacity: 0.95;
+}
+
+@media (max-width: 768px) {
+    .hero-title-tourism { font-size: 3.5rem; }
+    .section-title-tourism { font-size: 2.5rem; }
+    .categories-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="video-hero">
+    <img src="https://images.unsplash.com/photo-1524492412937-d80b9243572b?auto=format&fit=crop&w=2000&q=80" alt="Maharashtra" class="video-bg">
+    <div class="video-overlay"></div>
+    <div class="floating-icons">
+        <div class="float-icon">🏔️</div>
+        <div class="float-icon">🏖️</div>
+        <div class="float-icon">🏛️</div>
+    </div>
+    <div class="hero-content-tourism">
+        <div class="hero-badge-tourism">🌟 Discover Maharashtra Tourism</div>
+        <h1 class="hero-title-tourism">Explore Maharashtra</h1>
+        <p class="hero-subtitle-tourism">From majestic mountains to pristine beaches, ancient forts to modern cities - Experience the diversity of Maharashtra</p>
+        <div class="hero-cta-tourism">
+            <a href="{{ url_for('tours') }}" class="btn-tourism btn-primary-tourism">
+                <i class="fas fa-map-marked-alt"></i> Start Exploring
+            </a>
+            <a href="{{ url_for('packages') }}" class="btn-tourism btn-outline-tourism">
+                <i class="fas fa-gift"></i> View Packages
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="explore-section">
+    <div class="section-header-tourism">
+        <div class="section-badge-tourism">What to Explore</div>
+        <h2 class="section-title-tourism">Choose Your Adventure</h2>
+        <p class="section-subtitle-tourism">Maharashtra offers diverse experiences for every traveler</p>
+    </div>
+    <div class="categories-grid">
+        <div class="category-card" onclick="location.href='{{ url_for('hotels') }}'">
+            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" class="category-img" alt="Hotels">
+            <div class="category-overlay">
+                <div class="category-icon">🏨</div>
+                <div class="category-title">Luxury Stays</div>
+                <div class="category-desc">Premium hotels and resorts</div>
+                <div class="category-count">500+ Properties</div>
+            </div>
+        </div>
+        <div class="category-card" onclick="location.href='{{ url_for('tours') }}'">
+            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80" class="category-img" alt="Tours">
+            <div class="category-overlay">
+                <div class="category-icon">🗺️</div>
+                <div class="category-title">Guided Tours</div>
+                <div class="category-desc">Expert-led experiences</div>
+                <div class="category-count">200+ Tours</div>
+            </div>
+        </div>
+        <div class="category-card" onclick="location.href='{{ url_for('packages') }}'">
+            <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80" class="category-img" alt="Packages">
+            <div class="category-overlay">
+                <div class="category-icon">🎒</div>
+                <div class="category-title">Travel Packages</div>
+                <div class="category-desc">All-inclusive deals</div>
+                <div class="category-count">150+ Packages</div>
+            </div>
+        </div>
+        <div class="category-card" onclick="location.href='{{ url_for('hidden_gems') }}'">
+            <img src="https://images.unsplash.com/photo-1609137144813-7d9921338f24?auto=format&fit=crop&w=800&q=80" class="category-img" alt="Hidden Gems">
+            <div class="category-overlay">
+                <div class="category-icon">💎</div>
+                <div class="category-title">Hidden Gems</div>
+                <div class="category-desc">Off-beat destinations</div>
+                <div class="category-count">100+ Places</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="destinations-showcase">
+    <div class="section-header-tourism">
+        <div class="section-badge-tourism">Top Destinations</div>
+        <h2 class="section-title-tourism">Must-Visit Places</h2>
+        <p class="section-subtitle-tourism">Discover the most beautiful and iconic locations in Maharashtra</p>
+    </div>
+    <div class="destinations-masonry">
+        <div class="destination-item" onclick="location.href='{{ url_for('hotels') }}'">
+            <img src="https://images.unsplash.com/photo-1524492412937-d80b9243572b?auto=format&fit=crop&w=800&q=80" class="destination-img-showcase" alt="Mumbai">
+            <div class="destination-info-showcase">
+                <span class="destination-tag-showcase">Most Popular</span>
+                <h3 class="destination-name-showcase">Mumbai</h3>
+                <p class="destination-location-showcase">
+                    <i class="fas fa-map-marker-alt"></i> Financial Capital
+                </p>
+            </div>
+        </div>
+        <div class="destination-item" onclick="location.href='{{ url_for('tours') }}'">
+            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80" class="destination-img-showcase" alt="Lonavala">
+            <div class="destination-info-showcase">
+                <span class="destination-tag-showcase">Hill Station</span>
+                <h3 class="destination-name-showcase">Lonavala</h3>
+                <p class="destination-location-showcase">
+                    <i class="fas fa-map-marker-alt"></i> Sahyadri Mountains
+                </p>
+            </div>
+        </div>
+        <div class="destination-item" onclick="location.href='{{ url_for('hotels') }}'">
+            <img src="https://images.unsplash.com/photo-1596495542933-7965ba9c3c79?auto=format&fit=crop&w=800&q=80" class="destination-img-showcase" alt="Pune">
+            <div class="destination-info-showcase">
+                <span class="destination-tag-showcase">Cultural Hub</span>
+                <h3 class="destination-name-showcase">Pune</h3>
+                <p class="destination-location-showcase">
+                    <i class="fas fa-map-marker-alt"></i> Oxford of the East
+                </p>
+            </div>
+        </div>
+        <div class="destination-item" onclick="location.href='{{ url_for('tours') }}'">
+            <img src="https://images.unsplash.com/photo-1609137144813-7d9921338f24?auto=format&fit=crop&w=800&q=80" class="destination-img-showcase" alt="Mahabaleshwar">
+            <div class="destination-info-showcase">
+                <span class="destination-tag-showcase">Nature Paradise</span>
+                <h3 class="destination-name-showcase">Mahabaleshwar</h3>
+                <p class="destination-location-showcase">
+                    <i class="fas fa-map-marker-alt"></i> Queen of Hill Stations
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="experience-section">
+    <div class="section-header-tourism">
+        <h2 class="section-title-tourism" style="color: white;">Why Choose Maharashtra?</h2>
+        <p class="section-subtitle-tourism" style="color: rgba(255,255,255,0.9);">Unforgettable experiences await you</p>
+    </div>
+    <div class="experience-grid">
+        <div class="experience-item">
+            <div class="experience-icon">🏔️</div>
+            <h3 class="experience-title">Majestic Mountains</h3>
+            <p class="experience-desc">Explore the stunning Sahyadri ranges and hill stations</p>
+        </div>
+        <div class="experience-item">
+            <div class="experience-icon">🏖️</div>
+            <h3 class="experience-title">Beautiful Beaches</h3>
+            <p class="experience-desc">Relax on pristine coastlines along the Arabian Sea</p>
+        </div>
+        <div class="experience-item">
+            <div class="experience-icon">🏛️</div>
+            <h3 class="experience-title">Rich Heritage</h3>
+            <p class="experience-desc">Discover ancient forts, caves, and historical monuments</p>
+        </div>
+        <div class="experience-item">
+            <div class="experience-icon">🍛</div>
+            <h3 class="experience-title">Delicious Cuisine</h3>
+            <p class="experience-desc">Savor authentic Maharashtrian flavors and street food</p>
+        </div>
+    </div>
+</section>
+
+<section class="stats-tourism">
+    <div class="stats-grid-tourism">
+        <div>
+            <div class="stat-number-tourism counter" data-target="50000">0</div>
+            <div class="stat-label-tourism">Happy Travelers</div>
+        </div>
+        <div>
+            <div class="stat-number-tourism counter" data-target="500">0</div>
+            <div class="stat-label-tourism">Destinations</div>
+        </div>
+        <div>
+            <div class="stat-number-tourism counter" data-target="1000">0</div>
+            <div class="stat-label-tourism">Tour Packages</div>
+        </div>
+        <div>
+            <div class="stat-number-tourism">4.9</div>
+            <div class="stat-label-tourism">Average Rating</div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-tourism">
+    <h2 class="cta-title-tourism">Ready to Explore Maharashtra?</h2>
+    <p class="cta-text-tourism">Start your journey today and create memories that last a lifetime</p>
+    <a href="{{ url_for('packages') }}" class="btn-tourism btn-primary-tourism">
+        <i class="fas fa-rocket"></i> Book Your Adventure Now
+    </a>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const counters = document.querySelectorAll(".counter");
+    const speed = 200;
+    
+    const animateCounter = (counter) => {
+        const target = +counter.getAttribute("data-target");
+        const count = +counter.innerText;
+        const inc = target / speed;
+        
+        if (count < target) {
+            counter.innerText = Math.ceil(count + inc);
+            setTimeout(() => animateCounter(counter), 1);
+        } else {
+            counter.innerText = target.toLocaleString();
+        }
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    counters.forEach(counter => observer.observe(counter));
+});
+</script>
+
+<script src="{{ url_for('static', filename='js/modern-ui.js') }}"></script>
+<script>
+// Additional enhancements
+document.addEventListener("DOMContentLoaded", function() {
+    // Parallax effect for hero image
+    const heroImg = document.querySelector('.video-bg');
+    if (heroImg) {
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            heroImg.style.transform = `translateX(-50%) translateY(calc(-50% + ${scrolled * 0.5}px))`;
+        });
+    }
+    
+    // Add floating particles to hero
+    const hero = document.querySelector('.video-hero');
+    if (hero) {
+        for (let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: absolute;
+                width: ${Math.random() * 6 + 2}px;
+                height: ${Math.random() * 6 + 2}px;
+                background: white;
+                border-radius: 50%;
+                opacity: ${Math.random() * 0.5 + 0.2};
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+                animation: float ${3 + Math.random() * 4}s ease-in-out infinite;
+                animation-delay: ${Math.random() * 2}s;
+                z-index: 1;
+            `;
+            hero.appendChild(particle);
+        }
+    }
+    
+    console.log('🎨 Tourism homepage loaded!');
+});
+</script>
+{% endblock %}

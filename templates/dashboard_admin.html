@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Tripoora</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap');
+
+        :root {
+            --sunset: #FF6B6B;
+            --purple: #9B59B6;
+            --forest: #2ECC71;
+            --gold: #F39C12;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body { 
+            background: #f8f9fa; 
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .admin-wrapper { 
+            display: flex; 
+            min-height: 100vh; 
+        }
+
+        /* Sidebar */
+        .admin-sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1e1e2f, #2b2b45);
+            color: white;
+            padding: 2rem 1rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-logo h2 {
+            background: linear-gradient(135deg, var(--sunset), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
+            font-weight: 900;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            margin-bottom: 0.5rem;
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            color: #ccc;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-item i {
+            width: 24px;
+            margin-right: 0.75rem;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 107, 107, 0.2);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        /* Main Content */
+        .admin-main {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .stat-card:nth-child(1)::before { background: var(--sunset); }
+        .stat-card:nth-child(2)::before { background: var(--purple); }
+        .stat-card:nth-child(3)::before { background: var(--forest); }
+        .stat-card:nth-child(4)::before { background: var(--gold); }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Dashboard Sections */
+        .dashboard-section {
+            display: none;
+        }
+
+        .dashboard-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Data Tables */
+        .data-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+
+        .btn-action {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 0.5rem;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            .admin-wrapper { flex-direction: column; }
+            .admin-sidebar { width: 100%; height: auto; position: relative; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <div class="admin-sidebar">
+            <div class="sidebar-logo">
+                <h2>Tripoora</h2>
+                <p style="color: #888; font-size: 0.85rem;">Admin Dashboard</p>
+            </div>
+
+            <!-- Navigation -->
+            <div class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <a class="nav-item active" onclick="showSection('overview')">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Management</div>
+                <a class="nav-item" onclick="showSection('users')">
+                    <i class="fas fa-users"></i> Users ({{ stats.total_users }})
+                </a>
+                <a class="nav-item" onclick="showSection('hotels')">
+                    <i class="fas fa-hotel"></i> Hotels ({{ stats.total_hotels }})
+                </a>
+                <a class="nav-item" onclick="showSection('tours')">
+                    <i class="fas fa-map-marked-alt"></i> Tours ({{ stats.total_tours }})
+                </a>
+                <a class="nav-item" onclick="showSection('transports')">
+                    <i class="fas fa-bus"></i> Transports ({{ stats.total_transports }})
+                </a>
+                <a class="nav-item" onclick="showSection('packages')">
+                    <i class="fas fa-suitcase"></i> Packages ({{ stats.total_packages }})
+                </a>
+                <a class="nav-item" onclick="showSection('hidden-gems')">
+                    <i class="fas fa-gem"></i> Hidden Gems ({{ stats.total_hidden_gems }})
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Activity</div>
+                <a class="nav-item" onclick="showSection('itineraries')">
+                    <i class="fas fa-route"></i> AI Itineraries ({{ stats.total_itineraries }})
+                </a>
+                <a class="nav-item" onclick="showSection('messages')">
+                    <i class="fas fa-envelope"></i> Messages ({{ stats.total_messages }})
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <a href="{{ url_for('logout') }}" class="nav-item">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="admin-main">
+            <!-- Header -->
+            <div class="page-header">
+                <div>
+                    <h1>Dashboard Overview</h1>
+                    <p style="color: #666;">Welcome, {{ session.get('username', 'Admin') }}!</p>
+                </div>
+            </div>
+
+            <!-- Overview Section -->
+            <div id="overview-section" class="dashboard-section active">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: var(--sunset);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-value">{{ stats.total_users }}</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: var(--purple);">
+                            <i class="fas fa-hotel"></i>
+                        </div>
+                        <div class="stat-value">{{ stats.total_hotels }}</div>
+                        <div class="stat-label">Hotels Listed</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: var(--forest);">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <div class="stat-value">{{ stats.total_tours + stats.total_packages }}</div>
+                        <div class="stat-label">Tours & Packages</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: var(--gold);">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <div class="stat-value">{{ stats.total_itineraries }}</div>
+                        <div class="stat-label">AI Itineraries</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Users</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in recent_users %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email or 'N/A' }}</td>
+                                <td><span class="badge badge-info">{{ user.role }}</span></td>
+                                <td>
+                                    <button class="btn-action btn-delete" onclick="deleteUser({{ user.id }}, '{{ user.username }}')">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent AI Itineraries</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>City</th>
+                                <th>Days</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for itinerary in recent_itineraries %}
+                            <tr>
+                                <td>{{ itinerary.city }}</td>
+                                <td>{{ itinerary.days }} days</td>
+                                <td>{{ itinerary.created_at.strftime('%Y-%m-%d') if itinerary.created_at else 'N/A' }}</td>
+                                <td>
+                                    <button class="btn-action btn-view" onclick="viewItinerary({{ itinerary.id }})">View</button>
+                                    <button class="btn-action btn-delete" onclick="deleteItinerary({{ itinerary.id }}, '{{ itinerary.city }}')">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div id="users-section" class="dashboard-section">
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title">All Users ({{ stats.total_users }})</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email or 'N/A' }}</td>
+                                <td><span class="badge badge-info">{{ user.role }}</span></td>
+                                <td>
+                                    <button class="btn-action btn-delete" onclick="deleteUser({{ user.id }}, '{{ user.username }}')">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Hotels Section -->
+            <div id="hotels-section" class="dashboard-section">
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title">All Hotels ({{ stats.total_hotels }})</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>City</th>
+                                <th>Price/Night</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for hotel in hotels %}
+                            <tr>
+                                <td>{{ hotel.id }}</td>
+                                <td>{{ hotel.hotel_name or hotel.name }}</td>
+                                <td>{{ hotel.city or hotel.location }}</td>
+                                <td>₹{{ hotel.discounted_price or hotel.price_per_night }}</td>
+                                <td>
+                                    <button class="btn-action btn-view" onclick="viewHotel({{ hotel.id }})">View</button>
+                                    <button class="btn-action btn-delete" onclick="deleteHotel({{ hotel.id }}, '{{ hotel.hotel_name or hotel.name }}')">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tours Section -->
+            <div id="tours-section" class="dashboard-section">
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title">All Tours ({{ stats.total_tours }})</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Location</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tour in tours %}
+                            <tr>
+                                <td>{{ tour.id }}</td>
+                                <td>{{ tour.title }}</td>
+                                <td>{{ tour.location }}</td>
+                                <td>₹{{ tour.price }}</td>
+                                <td>
+                                    {% if tour.active %}
+                                    <span class="badge badge-success">Active</span>
+                                    {% else %}
+                                    <span class="badge badge-danger">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn-action btn-toggle" onclick="toggleTourStatus({{ tour.id }}, {{ 'true' if tour.active else 'false' }})">Toggle</button>
+                                    <button class="btn-action btn-delete" onclick="deleteTour({{ tour.id }}, '{{ tour.title }}')">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Transports Section -->
+            <div id="transports-section" class="dashboard-section">
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title">All Transports ({{ stats.total_transports }})</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Agency</th>
+                                <th>Vehicle Type</th>
+                                <th>Seats</th>
+                                <th>Price/KM</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transport in transports %}
+                            <tr>
+                                <td>{{ transport.id }}</td>
+                                <td>{{ transport.agency_name }}</td>
+                                <td>{{ transport.vehicle_type }}</td>
+                                <td>{{ transport.seats }}</td>
+                                <td>₹{{ transport.price_per_km }}</td>
+                                <td>
+                                    <button class="btn-action btn-delete" onclick="deleteTransport({{ transport.id }}, '{{ transport.agency_name }}')">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Packages Section -->
+            <div id="packages-section" class="dashboard-section">
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Travel Packages ({{ stats.total_packages }})</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Location</th>
+                                <th>Duration</th>
+                                <th>Price</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for package in packages %}
+                            <tr>
+                                <td>{{ package.id }}</td>
+                                <td>{{ package.title }}</td>
+                                <td>{{ package.location }}</td>
+                                <td>{{ package.duration }}</td>
+                                <td>₹{{ package.price_per_person }}</td>
+                                <td>
+                                    <button class="btn-action btn-delete" onclick="deletePackage({{ package.id }}, '{{ package.title }}')">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Hidden Gems Section -->
+            <div id="hidden-gems-section" class="dashboard-section">
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Hidden Gems ({{ stats.total_hidden_gems }})</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Category</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for gem in hidden_gems %}
+                            <tr>
+                                <td>{{ gem.id }}</td>
+                                <td>{{ gem.name }}</td>
+                                <td>{{ gem.location }}</td>
+                                <td><span class="badge badge-info">{{ gem.category }}</span></td>
+                                <td>
+                                    <button class="btn-action btn-delete" onclick="deleteHiddenGem({{ gem.id }}, '{{ gem.name }}')">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Itineraries Section -->
+            <div id="itineraries-section" class="dashboard-section">
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title">AI Generated Itineraries ({{ stats.total_itineraries }})</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>City</th>
+                                <th>Days</th>
+                                <th>User ID</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for itinerary in itineraries %}
+                            <tr>
+                                <td>{{ itinerary.id }}</td>
+                                <td>{{ itinerary.city }}</td>
+                                <td>{{ itinerary.days }}</td>
+                                <td>{{ itinerary.user_id }}</td>
+                                <td>{{ itinerary.created_at.strftime('%Y-%m-%d') if itinerary.created_at else 'N/A' }}</td>
+                                <td>
+                                    <button class="btn-action btn-view" onclick="viewItinerary({{ itinerary.id }})">View</button>
+                                    <button class="btn-action btn-delete" onclick="deleteItinerary({{ itinerary.id }}, '{{ itinerary.city }}')">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Messages Section -->
+            <div id="messages-section" class="dashboard-section">
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Contact Messages ({{ stats.total_messages }})</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Subject</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for message in contact_messages %}
+                            <tr>
+                                <td>{{ message.id }}</td>
+                                <td>{{ message.name }}</td>
+                                <td>{{ message.email }}</td>
+                                <td>{{ message.subject or 'No subject' }}</td>
+                                <td>{{ message.created_at.strftime('%Y-%m-%d') if message.created_at else 'N/A' }}</td>
+                                <td>
+                                    <button class="btn-action btn-view"
+                                        data-id="{{ message.id }}"
+                                        data-name="{{ message.name | e }}"
+                                        data-email="{{ message.email | e }}"
+                                        data-subject="{{ (message.subject or 'No subject') | e }}"
+                                        data-message="{{ message.message | e }}"
+                                        onclick="viewMessageSafe(this)">View</button>
+                                    <button class="btn-action btn-delete" onclick="deleteMessage({{ message.id }})">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Script -->
+    <script src="{{ url_for('static', filename='js/admin-security.js') }}"></script>
+    
+    <!-- Admin Dashboard Functionality -->
+    
+<script>
+function viewMessageSafe(btn) {
+    const id      = btn.dataset.id;
+    const name    = btn.dataset.name;
+    const email   = btn.dataset.email;
+    const subject = btn.dataset.subject;
+    const message = btn.dataset.message;
+    viewMessage(id, name, email, subject, message);
+}
+</script>
+<script src="{{ url_for('static', filename='js/admin-dashboard.js') }}"></script>
+</body>
+</html>
+

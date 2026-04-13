@@ -1,0 +1,679 @@
+{% extends "base.html" %}
+{% block title %}Day Tours - Tripoora{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&family=Playfair+Display:wght@700;900&display=swap');
+
+:root {
+    --sunset: #FF6B6B;
+    --ocean: #4ECDC4;
+    --sky: #45B7D1;
+    --forest: #2ECC71;
+    --gold: #F39C12;
+    --purple: #9B59B6;
+}
+
+body {
+    background: #f8f9fa !important;
+}
+
+/* Hero Section */
+.tours-hero {
+    background: linear-gradient(135deg, var(--sunset), var(--purple));
+    color: white;
+    padding: 6rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.tours-hero::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 2px, transparent 2px);
+    background-size: 50px 50px;
+    animation: movePattern 30s linear infinite;
+}
+
+@keyframes movePattern {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+.tours-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.tours-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+}
+
+.tours-hero p {
+    font-size: 1.3rem;
+    opacity: 0.95;
+}
+
+/* Search Section */
+.search-section {
+    max-width: 1200px;
+    margin: -3rem auto 3rem;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 10;
+}
+
+.search-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 25px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+.search-grid {
+    display: grid;
+    grid-template-columns: 2fr auto;
+    gap: 1rem;
+}
+
+.search-input {
+    padding: 1rem 1.5rem;
+    border: 2px solid #e8e8e8;
+    border-radius: 15px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--sunset);
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+.search-btn {
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    color: white;
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.search-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+}
+
+/* Tours Grid */
+.tours-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.results-count {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.tours-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 2rem;
+}
+
+.tour-card {
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    transition: all 0.4s;
+    cursor: pointer;
+}
+
+.tour-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.tour-image-container {
+    position: relative;
+    height: 280px;
+    overflow: hidden;
+}
+
+.tour-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s;
+}
+
+.tour-card:hover .tour-image {
+    transform: scale(1.15);
+}
+
+.tour-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+}
+
+.tour-duration {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+.tour-content {
+    padding: 2rem;
+}
+
+.tour-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.tour-location {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tour-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.tour-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f0f0f0;
+}
+
+.tour-price {
+    text-align: left;
+}
+
+.tour-price-amount {
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.tour-price-label {
+    font-size: 0.85rem;
+    color: #999;
+}
+
+.book-btn {
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    color: white;
+    padding: 0.9rem 2rem;
+    border: none;
+    border-radius: 50px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.book-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.empty-state-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.empty-state h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.empty-state p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+
+/* Booking Modal */
+.booking-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.booking-modal.active {
+    display: flex;
+}
+
+.booking-modal-content {
+    background: white;
+    border-radius: 25px;
+    padding: 2.5rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: #f0f0f0;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #666;
+    transition: all 0.3s;
+}
+
+.modal-close:hover {
+    background: #e0e0e0;
+    transform: rotate(90deg);
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.modal-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.modal-header p {
+    color: #666;
+    font-size: 1rem;
+}
+
+.booking-options {
+    display: grid;
+    gap: 1rem;
+}
+
+.booking-option {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border: 2px solid #e8e8e8;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    color: inherit;
+}
+
+.booking-option:hover {
+    border-color: var(--sunset);
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.05), rgba(243, 156, 18, 0.05));
+    transform: translateX(5px);
+}
+
+.booking-option-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    font-size: 1.8rem;
+    flex-shrink: 0;
+}
+
+.booking-option-icon.mmt {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.booking-option-icon.goibibo {
+    background: linear-gradient(135deg, #ff6d00, #ff9100);
+    color: white;
+}
+
+.booking-option-icon.yatra {
+    background: linear-gradient(135deg, #d32f2f, #b71c1c);
+    color: white;
+}
+
+.booking-option-icon.cleartrip {
+    background: linear-gradient(135deg, #ff5722, #f4511e);
+    color: white;
+}
+
+.booking-option-icon.thrillophilia {
+    background: linear-gradient(135deg, #00bcd4, #0097a7);
+    color: white;
+}
+
+.booking-option-content {
+    flex: 1;
+}
+
+.booking-option-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    color: #333;
+}
+
+.booking-option-desc {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.booking-option-arrow {
+    font-size: 1.5rem;
+    color: #ccc;
+    transition: all 0.3s;
+}
+
+.booking-option:hover .booking-option-arrow {
+    color: var(--sunset);
+    transform: translateX(5px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tours-hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .search-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .tours-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .booking-modal-content {
+        padding: 2rem 1.5rem;
+    }
+    
+    .booking-option {
+        gap: 1rem;
+    }
+    
+    .booking-option-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="tours-hero">
+    <div class="tours-hero-content">
+        <h1>🌟 Day Tours</h1>
+        <p>Discover amazing single-day experiences across Maharashtra</p>
+    </div>
+</div>
+
+<!-- Search Section -->
+<div class="search-section">
+    <div class="search-card">
+        <form method="GET" action="{{ url_for('tours') }}">
+            <div class="search-grid">
+                <input 
+                    type="text" 
+                    name="location" 
+                    class="search-input" 
+                    placeholder="🔍 Search by location (e.g., Mumbai, Pune, Lonavala)"
+                    value="{{ search_location or '' }}"
+                >
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tours Container -->
+<div class="tours-container">
+    {% if tours and tours|length > 0 %}
+        <div class="results-header">
+            <div class="results-count">
+                <i class="fas fa-map-marked-alt"></i> {{ tours|length }} Day Tours Available
+            </div>
+        </div>
+        
+        <div class="tours-grid">
+            {% for tour in tours %}
+            <div class="tour-card">
+                <div class="tour-image-container">
+                    <img src="{{ tour.image_url }}" alt="{{ tour.title }}" class="tour-image">
+                    <div class="tour-badge">DAY TOUR</div>
+                    <div class="tour-duration">
+                        <i class="fas fa-clock"></i> {{ tour.duration }}
+                    </div>
+                </div>
+                
+                <div class="tour-content">
+                    <h3 class="tour-title">{{ tour.title }}</h3>
+                    <div class="tour-location">
+                        <i class="fas fa-map-marker-alt"></i> {{ tour.location }}
+                    </div>
+                    <p class="tour-description">{{ tour.description }}</p>
+                    
+                    <div class="tour-footer">
+                        <div class="tour-price">
+                            <div class="tour-price-amount">₹{{ tour.price }}</div>
+                            <div class="tour-price-label">per person</div>
+                        </div>
+                        <button class="book-btn" onclick="openBookingModal('{{ tour.title }}', '{{ tour.location }}')">
+                            <i class="fas fa-ticket-alt"></i> Book Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-search-location"></i>
+            </div>
+            <h2>No Tours Found</h2>
+            <p>We couldn't find any day tours matching your search. Try different keywords or browse all tours.</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Booking Modal -->
+<div class="booking-modal" id="bookingModal">
+    <div class="booking-modal-content">
+        <button class="modal-close" onclick="closeBookingModal()">&times;</button>
+        
+        <div class="modal-header">
+            <h2>Choose Your Booking Platform</h2>
+            <p id="modalTourInfo">Select where you'd like to book this tour</p>
+        </div>
+        
+        <div class="booking-options">
+            <a href="https://www.makemytrip.com/holidays-india/" target="_blank" class="booking-option">
+                <div class="booking-option-icon mmt">
+                    <i class="fas fa-plane"></i>
+                </div>
+                <div class="booking-option-content">
+                    <div class="booking-option-title">MakeMyTrip</div>
+                    <div class="booking-option-desc">India's leading travel platform</div>
+                </div>
+                <div class="booking-option-arrow">→</div>
+            </a>
+            
+            <a href="https://www.goibibo.com/holidays/" target="_blank" class="booking-option">
+                <div class="booking-option-icon goibibo">
+                    <i class="fas fa-suitcase-rolling"></i>
+                </div>
+                <div class="booking-option-content">
+                    <div class="booking-option-title">Goibibo</div>
+                    <div class="booking-option-desc">Best deals and offers</div>
+                </div>
+                <div class="booking-option-arrow">→</div>
+            </a>
+            
+            <a href="https://www.yatra.com/holidays/india-tour-packages" target="_blank" class="booking-option">
+                <div class="booking-option-icon yatra">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <div class="booking-option-content">
+                    <div class="booking-option-title">Yatra</div>
+                    <div class="booking-option-desc">Trusted travel partner</div>
+                </div>
+                <div class="booking-option-arrow">→</div>
+            </a>
+            
+            <a href="https://www.cleartrip.com/holidays/" target="_blank" class="booking-option">
+                <div class="booking-option-icon cleartrip">
+                    <i class="fas fa-route"></i>
+                </div>
+                <div class="booking-option-content">
+                    <div class="booking-option-title">Cleartrip</div>
+                    <div class="booking-option-desc">Simple and transparent booking</div>
+                </div>
+                <div class="booking-option-arrow">→</div>
+            </a>
+            
+            <a href="https://www.thrillophilia.com/" target="_blank" class="booking-option">
+                <div class="booking-option-icon thrillophilia">
+                    <i class="fas fa-hiking"></i>
+                </div>
+                <div class="booking-option-content">
+                    <div class="booking-option-title">Thrillophilia</div>
+                    <div class="booking-option-desc">Adventure and experience tours</div>
+                </div>
+                <div class="booking-option-arrow">→</div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+function openBookingModal(tourTitle, tourLocation) {
+    const modal = document.getElementById('bookingModal');
+    const tourInfo = document.getElementById('modalTourInfo');
+    tourInfo.textContent = `Booking: ${tourTitle} - ${tourLocation}`;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeBookingModal() {
+    const modal = document.getElementById('bookingModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+// Close modal when clicking outside
+document.getElementById('bookingModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeBookingModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeBookingModal();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,1176 @@
+{% extends "base.html" %}
+{% block title %}My Profile - Tripoora{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&family=Playfair+Display:wght@700;900&display=swap');
+
+:root {
+    --sunset: #FF6B6B;
+    --ocean: #4ECDC4;
+    --sky: #45B7D1;
+    --forest: #2ECC71;
+    --gold: #F39C12;
+    --purple: #9B59B6;
+}
+
+body {
+    background: #f8f9fa !important;
+}
+
+/* Hero Section */
+.packages-hero {
+    background: linear-gradient(135deg, var(--sunset), var(--purple));
+    color: white;
+    padding: 6rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.packages-hero::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 2px, transparent 2px);
+    background-size: 50px 50px;
+    animation: movePattern 30s linear infinite;
+}
+
+@keyframes movePattern {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+.packages-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.packages-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+}
+
+.packages-hero p {
+    font-size: 1.3rem;
+    opacity: 0.95;
+}
+
+/* Search Section */
+.search-section {
+    max-width: 1200px;
+    margin: -3rem auto 3rem;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 10;
+}
+
+.search-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 25px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+.search-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-input {
+    padding: 1rem 1.5rem;
+    border: 2px solid #e8e8e8;
+    border-radius: 15px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--sunset);
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+.search-btn {
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    color: white;
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.search-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+}
+
+.filter-tags {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-tag {
+    padding: 0.7rem 1.5rem;
+    background: #f8f9fa;
+    border: 2px solid transparent;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.filter-tag:hover, .filter-tag.active {
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Packages Grid */
+.packages-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.results-count {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.sort-select {
+    padding: 0.8rem 1.5rem;
+    border: 2px solid #e8e8e8;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    background: white;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.packages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 2rem;
+}
+
+.package-card {
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    transition: all 0.4s;
+    cursor: pointer;
+}
+
+.package-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.package-image-container {
+    position: relative;
+    height: 280px;
+    overflow: hidden;
+}
+
+.package-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s;
+}
+
+.package-card:hover .package-image {
+    transform: scale(1.15);
+}
+
+.package-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+}
+
+.package-duration {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+.package-content {
+    padding: 2rem;
+}
+
+.package-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.package-location {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.package-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.package-highlights {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.package-highlight {
+    background: #e8f5e9;
+    color: var(--forest);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.package-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f0f0f0;
+}
+
+.package-price {
+    text-align: left;
+}
+
+.package-price-amount {
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.package-price-label {
+    font-size: 0.85rem;
+    color: #999;
+}
+
+.book-btn {
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    color: white;
+    padding: 0.8rem 1.8rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    position: relative;
+}
+
+.book-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+    color: white;
+}
+
+/* Booking Dropdown */
+.booking-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.booking-menu {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.25);
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    min-width: 220px;
+    z-index: 1000;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.booking-menu.show {
+    display: block;
+}
+
+.booking-menu-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #666;
+    margin-bottom: 0.8rem;
+    padding: 0 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.booking-link {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.9rem 1rem;
+    color: #333;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.2s;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+}
+
+.booking-link:last-child {
+    margin-bottom: 0;
+}
+
+.booking-link i {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+}
+
+.booking-link:hover {
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    color: white;
+    transform: translateX(5px);
+}
+
+.booking-link.makemytrip:hover { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.booking-link.booking:hover { background: linear-gradient(135deg, #003580, #0057b8); }
+.booking-link.goibibo:hover { background: linear-gradient(135deg, #f26522, #e74c3c); }
+.booking-link.yatra:hover { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.booking-link.cleartrip:hover { background: linear-gradient(135deg, #ff6d00, #ff9100); }
+.booking-link.tripadvisor:hover { background: linear-gradient(135deg, #00af87, #34e0a1); }
+
+.no-results {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: #666;
+}
+
+.no-results-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .packages-hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .search-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .packages-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+<style>
+/* Profile-specific overrides */
+.profile-hero {
+    background: linear-gradient(135deg, var(--sunset), var(--purple));
+    padding: 6rem 2rem 4rem;
+}
+
+.profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 5px solid white;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.3s;
+    object-fit: cover;
+}
+
+.profile-avatar:hover {
+    transform: scale(1.05);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="profile-hero">
+    <div class="packages-hero-content">
+        <img src="https://ui-avatars.com/api/?name={{ session.get('username', 'User') }}&size=150&background=random" 
+             alt="Profile" class="profile-avatar" id="profileAvatar">
+        <h1>{{ session.get('full_name', session.get('username', 'Traveler')) }}</h1>
+        <p>{{ session.get('email', 'user@example.com') }} | Adventure Enthusiast</p>
+    </div>
+</section>
+
+<section class="search-section">
+    <div class="search-card">
+        <div class="tabs" style="display: flex; gap: 1rem; border-bottom: 2px solid #ecf0f1;">
+
+            <button class="filter-tag active" onclick="switchTab('info')">
+                <i class="fas fa-user"></i> Personal Info
+            </button>
+            <button class="filter-tag" onclick="switchTab('preferences')">
+                <i class="fas fa-heart"></i> Preferences
+            </button>
+            <button class="filter-tag" onclick="switchTab('trips')">
+                <i class="fas fa-plane"></i> My Trips
+            </button>
+            <button class="filter-tag" onclick="switchTab('wishlist')">
+                <i class="fas fa-bookmark"></i> Wishlist
+            </button>
+            <button class="filter-tag" onclick="switchTab('reviews')">
+                <i class="fas fa-star"></i> Reviews
+            </button>
+            <button class="filter-tag" onclick="switchTab('settings')">
+                <i class="fas fa-cog"></i> Settings
+            </button>
+        </div>
+    </div>
+</section>
+
+<section class="packages-container">
+    <!-- Personal Info Tab -->
+    <div id="info-tab" class="tab-content-section">
+        <div class="packages-grid" style="grid-template-columns: 1fr;">
+            <div class="package-card">
+                <div class="package-content">
+                    <h3 class="package-title">Basic Information</h3>
+                    <form id="basicInfoForm">
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Full Name</label>
+                                <input type="text" id="fullName" class="search-input" placeholder="Enter your full name">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Email</label>
+                                <input type="email" id="email" class="search-input" value="{{ session.get('email', '') }}" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Phone</label>
+                                <input type="tel" id="phone" class="search-input" placeholder="+91 98765 43210">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Gender</label>
+                                <select id="gender" class="search-input">
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Date of Birth</label>
+                                <input type="date" id="dob" class="search-input">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Nationality</label>
+                                <input type="text" id="nationality" class="search-input" placeholder="Indian">
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-top: 2rem; margin-bottom: 1rem; color: #333;">Address Information</h4>
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">City</label>
+                                <input type="text" id="city" class="search-input" placeholder="Mumbai">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">State</label>
+                                <input type="text" id="state" class="search-input" placeholder="Maharashtra">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Country</label>
+                                <input type="text" id="country" class="search-input" placeholder="India">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="search-btn" style="margin-top: 1rem;">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preferences Tab -->
+    <div id="preferences-tab" class="tab-content-section" style="display: none;">
+        <div class="packages-grid" style="grid-template-columns: 1fr;">
+            <div class="package-card">
+                <div class="package-content">
+                    <h3 class="package-title">Travel Preferences</h3>
+                    <form id="preferencesForm">
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Travel Type</label>
+                                <select id="travelType" class="search-input">
+                                    <option value="">Select Type</option>
+                                    <option value="Adventure">Adventure</option>
+                                    <option value="Family">Family</option>
+                                    <option value="Solo">Solo</option>
+                                    <option value="Religious">Religious</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Budget Range</label>
+                                <select id="budget" class="search-input">
+                                    <option value="">Select Budget</option>
+                                    <option value="Low">Budget-friendly</option>
+                                    <option value="Medium">Comfortable</option>
+                                    <option value="High">Luxury</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Travel Frequency</label>
+                            <select id="frequency" class="search-input">
+                                <option value="">Select Frequency</option>
+                                <option value="Rare">Rare (1-2 times/year)</option>
+                                <option value="Occasional">Occasional (3-4 times/year)</option>
+                                <option value="Frequent">Frequent (5+ times/year)</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Preferred Destinations</label>
+                            <div class="filter-tags" id="destinationChips">
+                                <div class="filter-tag" onclick="toggleChip(this)" data-value="Mountains">🏔️ Mountains</div>
+                                <div class="filter-tag" onclick="toggleChip(this)" data-value="Beaches">🏖️ Beaches</div>
+                                <div class="filter-tag" onclick="toggleChip(this)" data-value="Cities">🏙️ Cities</div>
+                                <div class="filter-tag" onclick="toggleChip(this)" data-value="Historical">🏛️ Historical</div>
+                                <div class="filter-tag" onclick="toggleChip(this)" data-value="Wildlife">🦁 Wildlife</div>
+                                <div class="filter-tag" onclick="toggleChip(this)" data-value="Pilgrimage">🕉️ Pilgrimage</div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="search-btn" style="margin-top: 1rem;">
+                            <i class="fas fa-save"></i> Save Preferences
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trips Tab -->
+    <div id="trips-tab" class="tab-content-section" style="display: none;">
+        <div class="packages-grid" id="tripsGrid">
+            <div class="package-card">
+                <div class="package-content" style="text-align: center; padding: 3rem;">
+                    <i class="fas fa-plane" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                    <h3>No trips yet</h3>
+                    <p style="color: #666;">Your travel history will appear here</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Wishlist Tab -->
+    <div id="wishlist-tab" class="tab-content-section" style="display: none;">
+        <div class="packages-grid" id="wishlistGrid">
+            <div class="package-card">
+                <div class="package-content" style="text-align: center; padding: 3rem;">
+                    <i class="fas fa-bookmark" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                    <h3>No saved items</h3>
+                    <p style="color: #666;">Save your favorite destinations and packages</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reviews Tab -->
+    <div id="reviews-tab" class="tab-content-section" style="display: none;">
+        <div class="packages-grid" id="reviewsGrid">
+            <div class="package-card">
+                <div class="package-content" style="text-align: center; padding: 3rem;">
+                    <i class="fas fa-star" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                    <h3>No reviews yet</h3>
+                    <p style="color: #666;">Share your travel experiences</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Tab -->
+    <div id="settings-tab" class="tab-content-section" style="display: none;">
+        <div class="packages-grid" style="grid-template-columns: 1fr;">
+            <div class="package-card">
+                <div class="package-content">
+                    <h3 class="package-title">Notification Preferences</h3>
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid #f0f0f0;">
+                            <div>
+                                <strong>Trip Reminders</strong>
+                                <p style="color: #666; font-size: 0.9rem; margin: 0.25rem 0 0 0;">Get notified about upcoming trips</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="tripReminders" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid #f0f0f0;">
+                            <div>
+                                <strong>Offers & Discounts</strong>
+                                <p style="color: #666; font-size: 0.9rem; margin: 0.25rem 0 0 0;">Receive special offers and deals</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="offersDiscounts" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid #f0f0f0;">
+                            <div>
+                                <strong>Booking Confirmations</strong>
+                                <p style="color: #666; font-size: 0.9rem; margin: 0.25rem 0 0 0;">Confirmation emails for bookings</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="bookingConfirmations" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0;">
+                            <div>
+                                <strong>Travel Recommendations</strong>
+                                <p style="color: #666; font-size: 0.9rem; margin: 0.25rem 0 0 0;">Personalized travel suggestions</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="travelRecommendations">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button class="search-btn" onclick="saveNotificationSettings()">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                </div>
+            </div>
+            
+            <div class="package-card">
+                <div class="package-content">
+                    <h3 class="package-title">Account Security</h3>
+                    <div style="margin-bottom: 1.5rem;">
+                        <button class="book-btn" style="width: 100%; margin-bottom: 1rem;" onclick="changePassword()">
+                            <i class="fas fa-key"></i> Change Password
+                        </button>
+                        <button class="book-btn" style="width: 100%; background: linear-gradient(135deg, #e74c3c, #c0392b);" onclick="if(confirm('Are you sure you want to logout?')) window.location.href='{{ url_for('logout') }}'">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.tab-content-section {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<script>
+// Global state
+let currentTab = 'info';
+let profileData = {};
+let preferencesData = {};
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadProfileData();
+    loadPreferencesData();
+    loadTripsData();
+    loadWishlistData();
+    loadReviewsData();
+    loadNotificationSettings();
+    
+    // Setup form handlers
+    setupFormHandlers();
+});
+
+// Tab switching
+function switchTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content-section').forEach(tab => {
+        tab.style.display = 'none';
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.filter-tag').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + '-tab').style.display = 'block';
+    
+    // Add active class to clicked button
+    event.target.classList.add('active');
+    
+    currentTab = tabName;
+}
+
+// Load profile data
+async function loadProfileData() {
+    try {
+        const response = await fetch('/api/profile/basic');
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            profileData = result.data;
+            populateBasicInfo(result.data);
+        }
+    } catch (error) {
+        console.error('Error loading profile:', error);
+    }
+}
+
+// Populate basic info form
+function populateBasicInfo(data) {
+    if (data.full_name) document.getElementById('fullName').value = data.full_name;
+    if (data.email) document.getElementById('email').value = data.email;
+    if (data.mobile) document.getElementById('phone').value = data.mobile;
+    if (data.gender) document.getElementById('gender').value = data.gender;
+    if (data.date_of_birth) document.getElementById('dob').value = data.date_of_birth;
+    if (data.nationality) document.getElementById('nationality').value = data.nationality;
+    if (data.city) document.getElementById('city').value = data.city;
+    if (data.state) document.getElementById('state').value = data.state;
+    if (data.country) document.getElementById('country').value = data.country;
+}
+
+// Load preferences data
+async function loadPreferencesData() {
+    try {
+        const response = await fetch('/api/profile/preferences');
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            preferencesData = result.data;
+            populatePreferences(result.data);
+        }
+    } catch (error) {
+        console.error('Error loading preferences:', error);
+    }
+}
+
+// Populate preferences form
+function populatePreferences(data) {
+    if (data.travel_type) document.getElementById('travelType').value = data.travel_type;
+    if (data.budget_range) document.getElementById('budget').value = data.budget_range;
+    if (data.travel_frequency) document.getElementById('frequency').value = data.travel_frequency;
+    
+    // Select destination chips
+    if (data.preferred_destinations) {
+        const destinations = data.preferred_destinations.split(',');
+        document.querySelectorAll('#destinationChips .filter-tag').forEach(chip => {
+            const value = chip.getAttribute('data-value');
+            if (destinations.includes(value)) {
+                chip.classList.add('active');
+            }
+        });
+    }
+}
+
+// Load trips data
+async function loadTripsData() {
+    try {
+        const response = await fetch('/api/profile/trips');
+        const result = await response.json();
+        
+        if (result.success && result.data && result.data.length > 0) {
+            renderTrips(result.data);
+        }
+    } catch (error) {
+        console.error('Error loading trips:', error);
+    }
+}
+
+// Render trips
+function renderTrips(trips) {
+    const grid = document.getElementById('tripsGrid');
+    grid.innerHTML = trips.map(trip => `
+        <div class="package-card">
+            <div class="package-content">
+                <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1rem;">
+                    <h3 class="package-title" style="margin: 0;">${trip.trip_name}</h3>
+                    <span class="package-badge">${trip.status}</span>
+                </div>
+                <p class="package-location">
+                    <i class="fas fa-map-marker-alt"></i> ${trip.destination}
+                </p>
+                <p><strong>Dates:</strong> ${trip.start_date} to ${trip.end_date}</p>
+                <p><strong>Cost:</strong> ₹${trip.total_cost ? trip.total_cost.toLocaleString() : 'N/A'}</p>
+                ${trip.rating ? `<div class="package-highlights">
+                    <span class="package-highlight">⭐ ${trip.rating}/5</span>
+                </div>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Load wishlist data
+async function loadWishlistData() {
+    try {
+        const response = await fetch('/api/profile/wishlist');
+        const result = await response.json();
+        
+        if (result.success && result.data && result.data.length > 0) {
+            renderWishlist(result.data);
+        }
+    } catch (error) {
+        console.error('Error loading wishlist:', error);
+    }
+}
+
+// Render wishlist
+function renderWishlist(items) {
+    const grid = document.getElementById('wishlistGrid');
+    grid.innerHTML = items.map(item => `
+        <div class="package-card">
+            <div class="package-content">
+                <h3 class="package-title">${item.item_name}</h3>
+                <p class="package-description">${item.notes || 'Saved destination'}</p>
+                <div class="package-footer">
+                    <button class="book-btn" onclick="viewItem('${item.item_type}', ${item.item_id})">
+                        View Details
+                    </button>
+                    <button class="book-btn" style="background: linear-gradient(135deg, #e74c3c, #c0392b);" onclick="removeFromWishlist(${item.id})">
+                        Remove
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Load reviews data
+async function loadReviewsData() {
+    try {
+        const response = await fetch('/api/profile/reviews');
+        const result = await response.json();
+        
+        if (result.success && result.data && result.data.length > 0) {
+            renderReviews(result.data);
+        }
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+    }
+}
+
+// Render reviews
+function renderReviews(reviews) {
+    const grid = document.getElementById('reviewsGrid');
+    grid.innerHTML = reviews.map(review => `
+        <div class="package-card">
+            <div class="package-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 class="package-title" style="margin: 0;">${review.target_name}</h3>
+                    <div class="package-highlights">
+                        <span class="package-highlight">⭐ ${review.rating}/5</span>
+                    </div>
+                </div>
+                ${review.title ? `<h4 style="color: #666; margin-bottom: 0.5rem;">${review.title}</h4>` : ''}
+                <p class="package-description">${review.review_text}</p>
+                <p style="color: #999; font-size: 0.85rem;">Reviewed on ${new Date(review.created_at).toLocaleDateString()}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Load notification settings
+async function loadNotificationSettings() {
+    try {
+        const response = await fetch('/api/profile/notifications');
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            document.getElementById('tripReminders').checked = result.data.trip_reminders || false;
+            document.getElementById('offersDiscounts').checked = result.data.offers_discounts || false;
+            document.getElementById('bookingConfirmations').checked = result.data.booking_confirmations || false;
+            document.getElementById('travelRecommendations').checked = result.data.travel_recommendations || false;
+        }
+    } catch (error) {
+        console.error('Error loading notification settings:', error);
+    }
+}
+
+// Setup form handlers
+function setupFormHandlers() {
+    // Basic info form
+    document.getElementById('basicInfoForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            full_name: document.getElementById('fullName').value,
+            mobile: document.getElementById('phone').value,
+            gender: document.getElementById('gender').value,
+            date_of_birth: document.getElementById('dob').value,
+            nationality: document.getElementById('nationality').value,
+            city: document.getElementById('city').value,
+            state: document.getElementById('state').value,
+            country: document.getElementById('country').value
+        };
+        
+        try {
+            const response = await fetch('/api/profile/basic', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('✅ Profile updated successfully!');
+                loadProfileData();
+            } else {
+                alert('❌ Error: ' + result.message);
+            }
+        } catch (error) {
+            alert('❌ Error updating profile');
+            console.error(error);
+        }
+    });
+    
+    // Preferences form
+    document.getElementById('preferencesForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const selectedDestinations = Array.from(document.querySelectorAll('#destinationChips .filter-tag.active'))
+            .map(chip => chip.getAttribute('data-value'))
+            .join(',');
+        
+        const formData = {
+            travel_type: document.getElementById('travelType').value,
+            budget_range: document.getElementById('budget').value,
+            travel_frequency: document.getElementById('frequency').value,
+            preferred_destinations: selectedDestinations
+        };
+        
+        try {
+            const response = await fetch('/api/profile/preferences', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('✅ Preferences saved successfully!');
+            } else {
+                alert('❌ Error: ' + result.message);
+            }
+        } catch (error) {
+            alert('❌ Error saving preferences');
+            console.error(error);
+        }
+    });
+}
+
+// Toggle chip selection
+function toggleChip(chip) {
+    chip.classList.toggle('active');
+}
+
+// Save notification settings
+async function saveNotificationSettings() {
+    const settings = {
+        trip_reminders: document.getElementById('tripReminders').checked,
+        offers_discounts: document.getElementById('offersDiscounts').checked,
+        booking_confirmations: document.getElementById('bookingConfirmations').checked,
+        travel_recommendations: document.getElementById('travelRecommendations').checked
+    };
+    
+    try {
+        const response = await fetch('/api/profile/notifications', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(settings)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('✅ Notification settings saved!');
+        } else {
+            alert('❌ Error: ' + result.message);
+        }
+    } catch (error) {
+        alert('❌ Error saving settings');
+        console.error(error);
+    }
+}
+
+// Change password
+function changePassword() {
+    const newPassword = prompt('Enter new password:');
+    if (newPassword) {
+        alert('Password change functionality will be implemented');
+    }
+}
+
+// Remove from wishlist
+async function removeFromWishlist(itemId) {
+    if (!confirm('Remove this item from wishlist?')) return;
+    
+    try {
+        const response = await fetch('/api/profile/wishlist', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_id: itemId })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('✅ Removed from wishlist');
+            loadWishlistData();
+        } else {
+            alert('❌ Error: ' + result.message);
+        }
+    } catch (error) {
+        alert('❌ Error removing item');
+        console.error(error);
+    }
+}
+
+// View item
+function viewItem(type, id) {
+    if (type === 'package') {
+        window.location.href = '/packages';
+    } else if (type === 'destination') {
+        window.location.href = '/destinations';
+    }
+}
+</script>
+
+{% endblock %}

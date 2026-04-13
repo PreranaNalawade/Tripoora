@@ -1,0 +1,674 @@
+{% extends "base.html" %}
+{% block title %}Luxury Hotels - Tripoora{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&family=Playfair+Display:wght@700;900&display=swap');
+
+:root {
+    --sunset: #FF6B6B;
+    --ocean: #4ECDC4;
+    --sky: #45B7D1;
+    --forest: #2ECC71;
+    --gold: #F39C12;
+    --purple: #9B59B6;
+}
+
+body {
+    background: #f8f9fa !important;
+}
+
+/* Hero Section */
+.hotels-hero {
+    background: linear-gradient(135deg, var(--sunset), var(--purple));
+    color: white;
+    padding: 6rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hotels-hero::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 2px, transparent 2px);
+    background-size: 50px 50px;
+    animation: movePattern 30s linear infinite;
+}
+
+@keyframes movePattern {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+.hotels-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hotels-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+}
+
+.hotels-hero p {
+    font-size: 1.3rem;
+    opacity: 0.95;
+}
+
+/* Search Section */
+.search-section {
+    max-width: 1200px;
+    margin: -3rem auto 3rem;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 10;
+}
+
+.search-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 25px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+.search-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-input {
+    padding: 1rem 1.5rem;
+    border: 2px solid #e8e8e8;
+    border-radius: 15px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--sunset);
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+.search-btn {
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    color: white;
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.search-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+}
+
+.filter-tags {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-tag {
+    padding: 0.7rem 1.5rem;
+    background: #f8f9fa;
+    border: 2px solid transparent;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.filter-tag:hover, .filter-tag.active {
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Hotels Grid */
+.hotels-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.results-count {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.sort-select {
+    padding: 0.8rem 1.5rem;
+    border: 2px solid #e8e8e8;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    background: white;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.hotels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 2rem;
+}
+
+.hotel-card {
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    transition: all 0.4s;
+    cursor: pointer;
+}
+
+.hotel-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.hotel-image-container {
+    position: relative;
+    height: 280px;
+    overflow: hidden;
+}
+
+.hotel-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s;
+}
+
+.hotel-card:hover .hotel-image {
+    transform: scale(1.15);
+}
+
+.hotel-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+}
+
+.hotel-favorite {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+}
+
+.hotel-favorite:hover {
+    background: white;
+    transform: scale(1.1);
+}
+
+.hotel-favorite.active {
+    color: #e74c3c;
+}
+
+.hotel-content {
+    padding: 2rem;
+}
+
+.hotel-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.hotel-location {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hotel-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: #fff8e1;
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    width: fit-content;
+}
+
+.hotel-rating-stars {
+    color: var(--gold);
+}
+
+.hotel-amenities {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.amenity-tag {
+    background: #e8f5e9;
+    color: var(--forest);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.hotel-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f0f0f0;
+}
+
+.hotel-price {
+    text-align: left;
+}
+
+.hotel-price-amount {
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hotel-price-label {
+    font-size: 0.85rem;
+    color: #999;
+}
+
+.book-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.book-btn {
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    color: white;
+    padding: 0.8rem 1.8rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.book-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+}
+
+.book-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    bottom: 110%;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+    min-width: 220px;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.book-dropdown:hover .book-dropdown-menu {
+    display: block;
+}
+
+.book-dropdown-menu a {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem 1.2rem;
+    text-decoration: none;
+    color: #333;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.book-dropdown-menu a:last-child {
+    border-bottom: none;
+}
+
+.book-dropdown-menu a:hover {
+    background: linear-gradient(135deg, var(--sunset), var(--gold));
+    color: white;
+}
+
+.no-results {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: #666;
+}
+
+.no-results-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .hotels-hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .search-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .hotels-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hotels-hero">
+    <div class="hotels-hero-content">
+        <h1>Discover Luxury Stays</h1>
+        <p>Find the perfect hotel for your Maharashtra adventure</p>
+    </div>
+</section>
+
+<section class="search-section">
+    <div class="search-card">
+        <div class="search-grid">
+            <input type="text" id="citySearch" class="search-input" placeholder="🔍 Search by city or hotel name...">
+            <input type="number" id="minPrice" class="search-input" placeholder="💰 Min Price">
+            <input type="number" id="maxPrice" class="search-input" placeholder="💰 Max Price">
+            <select id="minRating" class="search-input">
+                <option value="">⭐ Any Rating</option>
+                <option value="4.5">⭐⭐⭐⭐⭐ 4.5+</option>
+                <option value="4.0">⭐⭐⭐⭐ 4.0+</option>
+                <option value="3.5">⭐⭐⭐ 3.5+</option>
+            </select>
+            <button class="search-btn" onclick="searchHotels()">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </div>
+        <div class="filter-tags">
+            <div class="filter-tag active" onclick="quickFilter('all')">
+                <i class="fas fa-th"></i> All Hotels
+            </div>
+            <div class="filter-tag" onclick="quickFilter('budget')">
+                <i class="fas fa-rupee-sign"></i> Budget Friendly
+            </div>
+            <div class="filter-tag" onclick="quickFilter('luxury')">
+                <i class="fas fa-crown"></i> Luxury
+            </div>
+            <div class="filter-tag" onclick="quickFilter('top-rated')">
+                <i class="fas fa-star"></i> Top Rated
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="hotels-container">
+    <div class="results-header">
+        <div class="results-count" id="resultsCount">Loading hotels...</div>
+        <select class="sort-select" id="sortBy" onchange="sortHotels()">
+            <option value="default">🔽 Sort By</option>
+            <option value="price-low">💰 Price: Low to High</option>
+            <option value="price-high">💰 Price: High to Low</option>
+            <option value="rating">⭐ Rating: High to Low</option>
+            <option value="name">🔤 Name: A to Z</option>
+        </select>
+    </div>
+    
+    <div class="hotels-grid" id="hotelsGrid"></div>
+</section>
+
+<script>
+let allHotels = [];
+let filteredHotels = [];
+let favorites = JSON.parse(localStorage.getItem('hotelFavorites') || '[]');
+
+// Load hotels
+async function loadHotels() {
+    try {
+        const response = await fetch('/api/hotels');
+        allHotels = await response.json();
+        filteredHotels = [...allHotels];
+        renderHotels(filteredHotels);
+        updateResultsCount();
+    } catch (error) {
+        console.error('Error loading hotels:', error);
+        document.getElementById('hotelsGrid').innerHTML = '<div class="no-results"><div class="no-results-icon">⚠️</div><h3>Error loading hotels</h3></div>';
+    }
+}
+
+// Search hotels
+async function searchHotels() {
+    const city = document.getElementById('citySearch').value;
+    const minPrice = document.getElementById('minPrice').value;
+    const maxPrice = document.getElementById('maxPrice').value;
+    const minRating = document.getElementById('minRating').value;
+    
+    const params = new URLSearchParams();
+    if (city) params.append('city', city);
+    if (minPrice) params.append('min_price', minPrice);
+    if (maxPrice) params.append('max_price', maxPrice);
+    if (minRating) params.append('min_rating', minRating);
+    
+    try {
+        const response = await fetch(`/api/hotels/search?${params}`);
+        filteredHotels = await response.json();
+        renderHotels(filteredHotels);
+        updateResultsCount();
+    } catch (error) {
+        console.error('Error searching hotels:', error);
+    }
+}
+
+// Quick filters
+function quickFilter(type) {
+    document.querySelectorAll('.filter-tag').forEach(tag => tag.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    switch(type) {
+        case 'all':
+            filteredHotels = [...allHotels];
+            break;
+        case 'budget':
+            filteredHotels = allHotels.filter(h => h.price_per_night < 3000);
+            break;
+        case 'luxury':
+            filteredHotels = allHotels.filter(h => h.price_per_night >= 5000);
+            break;
+        case 'top-rated':
+            filteredHotels = allHotels.filter(h => h.rating >= 4.5);
+            break;
+    }
+    
+    renderHotels(filteredHotels);
+    updateResultsCount();
+}
+
+// Sort hotels
+function sortHotels() {
+    const sortBy = document.getElementById('sortBy').value;
+    
+    switch(sortBy) {
+        case 'price-low':
+            filteredHotels.sort((a, b) => a.price_per_night - b.price_per_night);
+            break;
+        case 'price-high':
+            filteredHotels.sort((a, b) => b.price_per_night - a.price_per_night);
+            break;
+        case 'rating':
+            filteredHotels.sort((a, b) => b.rating - a.rating);
+            break;
+        case 'name':
+            filteredHotels.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+    }
+    
+    renderHotels(filteredHotels);
+}
+
+// Toggle favorite
+function toggleFavorite(hotelId, event) {
+    event.stopPropagation();
+    const index = favorites.indexOf(hotelId);
+    if (index > -1) {
+        favorites.splice(index, 1);
+    } else {
+        favorites.push(hotelId);
+    }
+    localStorage.setItem('hotelFavorites', JSON.stringify(favorites));
+    renderHotels(filteredHotels);
+}
+
+// Get star rating
+function getStarRating(rating) {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    let stars = '';
+    
+    for (let i = 0; i < fullStars; i++) {
+        stars += '<i class="fas fa-star"></i>';
+    }
+    if (hasHalfStar) {
+        stars += '<i class="fas fa-star-half-alt"></i>';
+    }
+    const emptyStars = 5 - Math.ceil(rating);
+    for (let i = 0; i < emptyStars; i++) {
+        stars += '<i class="far fa-star"></i>';
+    }
+    
+    return stars;
+}
+
+// Get amenities
+function getMockAmenities(hotel) {
+    const allAmenities = ['WiFi', 'Pool', 'Spa', 'Gym', 'Restaurant', 'Bar'];
+    const numAmenities = Math.floor(Math.random() * 3) + 3;
+    const shuffled = allAmenities.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, numAmenities);
+}
+
+// Render hotels
+function renderHotels(hotels) {
+    const container = document.getElementById('hotelsGrid');
+    
+    if (hotels.length === 0) {
+        container.innerHTML = '<div class="no-results"><div class="no-results-icon">🏨</div><h3>No hotels found</h3><p>Try adjusting your search criteria</p></div>';
+        return;
+    }
+    
+    container.innerHTML = hotels.map(hotel => {
+        const isFavorite = favorites.includes(hotel.id);
+        const amenities = getMockAmenities(hotel);
+        const badge = hotel.rating >= 4.5 ? '⭐ Excellent' : hotel.price_per_night >= 5000 ? '👑 Luxury' : '🏨 Popular';
+        
+        return `
+            <div class="hotel-card" onclick="location.href='/hotel/${hotel.id}'">
+                <div class="hotel-image-container">
+                    <img src="${hotel.image}" alt="${hotel.name}" class="hotel-image" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80'">
+                    <div class="hotel-badge">${badge}</div>
+                    <div class="hotel-favorite ${isFavorite ? 'active' : ''}" onclick="toggleFavorite(${hotel.id}, event)">
+                        <i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i>
+                    </div>
+                </div>
+                <div class="hotel-content">
+                    <h3 class="hotel-name">${hotel.name}</h3>
+                    <p class="hotel-location">
+                        <i class="fas fa-map-marker-alt"></i> ${hotel.city}
+                    </p>
+                    <div class="hotel-rating">
+                        <span class="hotel-rating-stars">${getStarRating(hotel.rating)}</span>
+                        <span>${hotel.rating.toFixed(1)}</span>
+                    </div>
+                    <div class="hotel-amenities">
+                        ${amenities.map(amenity => `<span class="amenity-tag">${amenity}</span>`).join('')}
+                    </div>
+                    <div class="hotel-footer">
+                        <div class="hotel-price">
+                            <div class="hotel-price-amount">₹${hotel.price_per_night.toLocaleString()}</div>
+                            <div class="hotel-price-label">per night</div>
+                        </div>
+                        <div class="book-dropdown">
+                            <button class="book-btn" onclick="event.stopPropagation()">Book Now</button>
+                            <div class="book-dropdown-menu">
+                                <a href="https://www.makemytrip.com/hotels/" target="_blank" onclick="event.stopPropagation()">
+                                    <i class="fas fa-plane"></i> MakeMyTrip
+                                </a>
+                                <a href="https://www.booking.com/" target="_blank" onclick="event.stopPropagation()">
+                                    <i class="fas fa-hotel"></i> Booking.com
+                                </a>
+                                <a href="https://www.goibibo.com/hotels/" target="_blank" onclick="event.stopPropagation()">
+                                    <i class="fas fa-suitcase"></i> Goibibo
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Update results count
+function updateResultsCount() {
+    document.getElementById('resultsCount').textContent = `${filteredHotels.length} hotels found`;
+}
+
+// Load on page load
+document.addEventListener('DOMContentLoaded', loadHotels);
+</script>
+{% endblock %}

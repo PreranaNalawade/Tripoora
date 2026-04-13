@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Transport Services - Tripoora{% endblock %}
+
+{% block content %}
+<div style="min-height: calc(100vh - 160px); background: #f8f9fa; padding: 0;">
+    <!-- Hero Section -->
+    <div style="background: linear-gradient(135deg, #FF6B6B, #9B59B6); color: white; padding: 6rem 2rem 4rem; text-align: center; position: relative; overflow: hidden;">
+        <div style="position: absolute; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 2px, transparent 2px); background-size: 50px 50px; animation: movePattern 30s linear infinite;"></div>
+        
+        <div style="position: relative; z-index: 2; max-width: 800px; margin: 0 auto;">
+            <h1 style="font-family: 'Playfair Display', serif; font-size: 4rem; font-weight: 900; margin-bottom: 1rem;">Transport Services</h1>
+            <p style="font-size: 1.3rem; opacity: 0.95;">Comfortable and reliable transportation across Maharashtra</p>
+        </div>
+    </div>
+
+    <!-- Search Section -->
+    <div style="max-width: 1200px; margin: -3rem auto 3rem; padding: 0 2rem; position: relative; z-index: 10;">
+        <div style="background: white; padding: 2.5rem; border-radius: 25px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
+            <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem;">
+                <input type="text" id="fromPlace" placeholder="🔍 Search by Agency Name" style="padding: 1rem 1.5rem; border: 2px solid #e8e8e8; border-radius: 15px; font-family: 'Poppins', sans-serif; font-size: 0.95rem; transition: all 0.3s;">
+                <input type="text" id="toPlace" placeholder="🚗 Or Vehicle Type" style="padding: 1rem 1.5rem; border: 2px solid #e8e8e8; border-radius: 15px; font-family: 'Poppins', sans-serif; font-size: 0.95rem; transition: all 0.3s;">
+                <button onclick="searchTransports()" style="background: linear-gradient(135deg, #FF6B6B, #F39C12); color: white; padding: 1rem 2.5rem; border: none; border-radius: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>🔍</span> Search
+                </button>
+            </div>
+            <div style="margin-top: 1rem;">
+                <button onclick="clearSearch()" style="background: transparent; color: #666; padding: 0.5rem 1rem; border: 2px solid #e8e8e8; border-radius: 10px; font-size: 0.9rem; cursor: pointer; transition: all 0.3s;">
+                    âœ– Clear Search
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transports Container -->
+    <div style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+        {% if transports %}
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div style="font-size: 1.3rem; font-weight: 600; color: #333;">
+                    <i class="fas fa-bus"></i> <span id="resultCount">{{ transports|length }} Transport Service{{ "s" if transports|length != 1 else "" }} Available</span>
+                </div>
+            </div>
+            
+            <!-- Transport Grid -->
+            <div id="transportGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 2rem;">
+                {% for transport in transports %}
+                    <div class="transport-card" data-agency="{{ transport.agency_name|lower }}" data-vehicle="{{ transport.vehicle_type|lower }}" style="background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1); transition: all 0.4s; cursor: pointer;" onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 60px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 40px rgba(0,0,0,0.1)'">
+                        <!-- Transport Image -->
+                        <div style="position: relative; height: 280px; overflow: hidden;">
+                            {% if transport.image_url %}
+                                <img src="{{ transport.image_url }}" alt="{{ transport.agency_name }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s;">
+                            {% else %}
+                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                                    🚌
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Vehicle Type Badge -->
+                            <div style="position: absolute; top: 1rem; left: 1rem; background: linear-gradient(135deg, #FF6B6B, #F39C12); color: white; padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.85rem; font-weight: 700; box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);">
+                                {{ transport.vehicle_type }}
+                            </div>
+                        </div>
+
+                        <!-- Transport Details -->
+                        <div style="padding: 2rem;">
+                            <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #333;">
+                                {{ transport.agency_name }}
+                            </h3>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                                <div style="background: #f8f9fa; padding: 1rem; border-radius: 15px; text-align: center;">
+                                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #FF6B6B;">👥</div>
+                                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.3rem;">Capacity</div>
+                                    <div style="font-size: 1.1rem; font-weight: 700; color: #333;">{{ transport.seats }} Seats</div>
+                                </div>
+                                
+                                <div style="background: #f8f9fa; padding: 1rem; border-radius: 15px; text-align: center;">
+                                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #FF6B6B;">💰</div>
+                                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.3rem;">Price</div>
+                                    <div style="font-size: 1.1rem; font-weight: 700; color: #333;">₹{{ transport.price_per_km }}/km</div>
+                                </div>
+                            </div>
+
+                            <!-- External Booking -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1.5rem; border-top: 2px solid #f0f0f0;">
+                                <div style="text-align: left;">
+                                    <div style="font-size: 2rem; font-weight: 900; background: linear-gradient(135deg, #FF6B6B, #F39C12); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                                        ₹{{ transport.price_per_km }}
+                                    </div>
+                                    <div style="font-size: 0.85rem; color: #999;">per kilometer</div>
+                                </div>
+                                <div class="book-dropdown-container" style="position:relative;">
+                                    <button onclick="toggleMenu(event, 'menu-{{ transport.id }}')" style="background: linear-gradient(135deg, #FF6B6B, #F39C12); color: white; padding: 0.9rem 2rem; border: none; border-radius: 50px; font-weight: 700; cursor: pointer; transition: all 0.3s;">
+                                        Book Now &#9660;
+                                    </button>
+                                    <div class="dropdown-menu" id="menu-{{ transport.id }}" style="display:none;position:absolute;bottom:110%;left:0;right:0;background:white;border-radius:15px;box-shadow:0 10px 40px rgba(0,0,0,0.2);z-index:100;overflow:hidden;">
+                                        <a href="#" onclick="bookTransport(event, 'redbus'); return false;" style="display:block;padding:1rem 1.5rem;text-decoration:none;color:#333;font-weight:600;border-bottom:1px solid #f0f0f0;transition:all 0.3s;">🚌 RedBus</a>
+                                        <a href="#" onclick="bookTransport(event, 'abhibus'); return false;" style="display:block;padding:1rem 1.5rem;text-decoration:none;color:#333;font-weight:600;border-bottom:1px solid #f0f0f0;transition:all 0.3s;">🚌 AbhiBus</a>
+                                        <a href="#" onclick="bookTransport(event, 'makemytrip'); return false;" style="display:block;padding:1rem 1.5rem;text-decoration:none;color:#333;font-weight:600;border-bottom:1px solid #f0f0f0;transition:all 0.3s;">🚌 MakeMyTrip</a>
+                                        <a href="#" onclick="bookTransport(event, 'ola'); return false;" style="display:block;padding:1rem 1.5rem;text-decoration:none;color:#333;font-weight:600;border-bottom:1px solid #f0f0f0;transition:all 0.3s;">🚗 Ola Cabs</a>
+                                        <a href="#" onclick="bookTransport(event, 'uber'); return false;" style="display:block;padding:1rem 1.5rem;text-decoration:none;color:#333;font-weight:600;border-bottom:1px solid #f0f0f0;transition:all 0.3s;">🚗 Uber</a>
+                                        <a href="#" onclick="bookTransport(event, 'rapido'); return false;" style="display:block;padding:1rem 1.5rem;text-decoration:none;color:#333;font-weight:600;">🏍️ Rapido</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div style="text-align: center; padding: 4rem 2rem; max-width: 600px; margin: 0 auto;">
+                <div style="font-size: 5rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, #FF6B6B, #F39C12); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                    🔍
+                </div>
+                <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: #333;">No Transport Services Found</h2>
+                <p style="color: #666; font-size: 1.1rem;">We couldn't find any transport services matching your search. Try different keywords or browse all services.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+@keyframes movePattern {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+.dropdown-menu a:hover {
+    background: linear-gradient(135deg, #FF6B6B, #F39C12) !important;
+    color: white !important;
+}
+
+@media (max-width: 768px) {
+    div[style*="grid-template-columns: 1fr 1fr auto"] {
+        grid-template-columns: 1fr !important;
+    }
+    
+    div[style*="grid-template-columns: repeat(auto-fill"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script id="transport-data" type="application/json">{{ transports_data|tojson }}</script>
+<script>
+// Store original transport data
+const originalTransports = JSON.parse(document.getElementById('transport-data').textContent);
+
+function searchTransports() {
+    const query1 = document.getElementById('fromPlace').value.toLowerCase().trim();
+    const query2 = document.getElementById('toPlace').value.toLowerCase().trim();
+    const terms = [query1, query2].filter(Boolean);
+
+    const grid = document.getElementById('transportGrid');
+    if (!grid) return;
+
+    if (terms.length === 0) {
+        // Show all cards
+        grid.querySelectorAll('.transport-card').forEach(card => card.style.display = '');
+        updateResultCount(grid.querySelectorAll('.transport-card').length);
+        return;
+    }
+
+    let visibleCount = 0;
+    grid.querySelectorAll('.transport-card').forEach(card => {
+        const text = ((card.dataset.agency || '') + ' ' + (card.dataset.vehicle || '')).toLowerCase();
+        const matches = terms.every(term => text.includes(term));
+        card.style.display = matches ? '' : 'none';
+        if (matches) visibleCount++;
+    });
+
+    updateResultCount(visibleCount);
+
+    if (visibleCount === 0) {
+        let noResult = document.getElementById('noSearchResult');
+        if (!noResult) {
+            noResult = document.createElement('div');
+            noResult.id = 'noSearchResult';
+            noResult.style.cssText = 'grid-column:1/-1;text-align:center;padding:3rem;color:#666;font-size:1.1rem;';
+            noResult.innerHTML = '<div style="font-size:3rem;margin-bottom:1rem;">🔍</div><p>No transport services found matching your search.</p>';
+            grid.appendChild(noResult);
+        }
+    } else {
+        const noResult = document.getElementById('noSearchResult');
+        if (noResult) noResult.remove();
+    }
+}
+
+function updateResultCount(count) {
+    const counter = document.getElementById('resultCount');
+    if (counter) counter.textContent = count + ' Transport Service' + (count !== 1 ? 's' : '') + ' Available';
+}
+
+function clearSearch() {
+    document.getElementById('fromPlace').value = '';
+    document.getElementById('toPlace').value = '';
+    location.reload();
+}
+
+function toggleMenu(event, menuId) {
+    event.stopPropagation();
+    event.preventDefault();
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        if (menu.id !== menuId) menu.style.display = 'none';
+    });
+    const menu = document.getElementById(menuId);
+    if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.book-dropdown-container')) {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            menu.style.display = 'none';
+        });
+    }
+});
+
+function bookTransport(event, platform) {
+    event.stopPropagation();
+    event.preventDefault();
+    const fromPlace = document.getElementById('fromPlace').value.trim();
+    const toPlace = document.getElementById('toPlace').value.trim();
+    
+    let url = '';
+    let message = '';
+    
+    switch(platform) {
+        case 'redbus':
+            url = 'https://www.redbus.in/';
+            message = fromPlace && toPlace ? `Searching RedBus for: ${fromPlace} to ${toPlace}` : 'Opening RedBus...';
+            break;
+        case 'abhibus':
+            url = 'https://www.abhibus.com/';
+            message = fromPlace && toPlace ? `Searching AbhiBus for: ${fromPlace} to ${toPlace}` : 'Opening AbhiBus...';
+            break;
+        case 'makemytrip':
+            url = 'https://www.makemytrip.com/bus-tickets/';
+            message = 'Opening MakeMyTrip...';
+            break;
+        case 'ola':
+            url = 'https://www.olacabs.com/';
+            message = 'Opening Ola Cabs...';
+            break;
+        case 'uber':
+            url = 'https://www.uber.com/in/en/ride/';
+            message = 'Opening Uber...';
+            break;
+        case 'rapido':
+            url = 'https://www.rapido.bike/';
+            message = 'Opening Rapido...';
+            break;
+    }
+    
+    if (message) alert(message);
+    window.open(url, '_blank', 'noopener,noreferrer');
+}
+</script>
+{% endblock %}
+

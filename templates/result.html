@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Your Itinerary - {{ city }} - Tripoora{% endblock %}
+
+{% block content %}
+<div style="min-height: calc(100vh - 160px); background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%); padding: 2rem;">
+    <div style="max-width: 900px; margin: 0 auto;">
+        <div style="text-align: center; margin-bottom: 3rem; padding: 2rem 0;">
+            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem; box-shadow: 0 10px 30px rgba(16,185,129,0.3);">
+                ✓
+            </div>
+            <h1 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #1a202c; margin-bottom: 0.5rem; font-weight: 700;">
+                Your Itinerary is Ready!
+            </h1>
+            <p style="color: #64748b; font-size: 1.1rem;">{{ days }}-day adventure in {{ city }}</p>
+        </div>
+
+        <div style="background: white; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); overflow: hidden; margin-bottom: 2rem;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); padding: 3rem; color: white; position: relative;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 1rem; font-weight: 700;">{{ city }}</h2>
+                <div style="display: inline-block; background: rgba(255,255,255,0.2); padding: 0.5rem 1.25rem; border-radius: 20px;">
+                    🎯 {{ preference }} | {{ days }} Days
+                </div>
+            </div>
+
+            <div style="padding: 3rem;">
+                <div style="background: #f8fafc; padding: 2.5rem; border-radius: 20px; border-left: 5px solid #667eea; margin-bottom: 2rem;">
+                    <div style="white-space: pre-wrap; color: #475569; line-height: 2; font-size: 1rem;">{{ itinerary }}</div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <button onclick="copyItinerary()" style="padding: 1.25rem; border: none; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px; cursor: pointer; font-weight: 600;">
+                        📋 Copy Itinerary
+                    </button>
+                    <button onclick="shareItinerary()" style="padding: 1.25rem; border: none; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 15px; cursor: pointer; font-weight: 600;">
+                        🔗 Share
+                    </button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <a href="{{ url_for('generate_itinerary_page') }}" style="padding: 1rem; border: 2px solid #e2e8f0; background: white; color: #1a202c; border-radius: 12px; text-decoration: none; font-weight: 600; text-align: center;">
+                        🔄 Create Another
+                    </a>
+                    <a href="{{ url_for('itineraries') }}" style="padding: 1rem; border: 2px solid #667eea; background: white; color: #667eea; border-radius: 12px; text-decoration: none; font-weight: 600; text-align: center;">
+                        📚 View All
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyItinerary() {
+    const text = `{{ days }}-Day Itinerary for {{ city }}\n\n{{ itinerary|safe }}`;
+    navigator.clipboard.writeText(text).then(() => alert('✅ Copied to clipboard!'));
+}
+
+function shareItinerary() {
+    const text = `Check out my {{ days }}-day trip to {{ city }}!`;
+    if (navigator.share) {
+        navigator.share({ title: '{{ city }} Itinerary', text: text });
+    } else {
+        copyItinerary();
+    }
+}
+</script>
+{% endblock %}

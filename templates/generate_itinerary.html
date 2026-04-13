@@ -1,0 +1,572 @@
+{% extends "base.html" %}
+{% block title %}Plan Your Trip - Tripoora{% endblock %}
+
+{% block extra_css %}
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    .bg-animation {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: -1;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
+    }
+    
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    .bg-animation::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(15, 15, 30, 0.85);
+        backdrop-filter: blur(10px);
+    }
+    
+    .floating-shapes {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: -1;
+        overflow: hidden;
+    }
+    
+    .shape {
+        position: absolute;
+        opacity: 0.1;
+        animation: float 20s infinite ease-in-out;
+    }
+    
+    .shape:nth-child(1) {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        border-radius: 50%;
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+    
+    .shape:nth-child(2) {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        top: 60%;
+        right: 10%;
+        animation-delay: 3s;
+    }
+    
+    .shape:nth-child(3) {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(45deg, #f093fb, #f5576c);
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        bottom: 20%;
+        left: 30%;
+        animation-delay: 6s;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        25% { transform: translateY(-20px) rotate(90deg); }
+        50% { transform: translateY(0) rotate(180deg); }
+        75% { transform: translateY(20px) rotate(270deg); }
+    }
+    
+    main {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6rem 2rem 2rem;
+    }
+    
+    .content-wrapper {
+        max-width: 1200px;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+    }
+    
+    .hero-section {
+        animation: slideInLeft 1s ease;
+    }
+    
+    @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #fff, #667eea);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.3rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    
+    .features {
+        display: flex;
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+    
+    .feature {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .feature:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .feature i {
+        font-size: 1.5rem;
+        color: #667eea;
+    }
+    
+    .feature-text {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .form-section {
+        animation: slideInRight 1s ease;
+    }
+    
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .form-container {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border-radius: 30px;
+        padding: 3rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .form-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .form-subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.8rem;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 0.8rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-label i {
+        color: #667eea;
+        font-size: 1rem;
+    }
+    
+    .form-input,
+    .form-select {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        color: #fff;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+    
+    .form-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .form-input:focus,
+    .form-select:focus {
+        border-color: #667eea;
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+    }
+    
+    .form-select {
+        cursor: pointer;
+    }
+    
+    .form-select option {
+        background: #0f0f1e;
+        color: #fff;
+    }
+    
+    .submit-btn {
+        width: 100%;
+        padding: 1.2rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 15px;
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        margin-top: 2rem;
+    }
+    
+    .submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .submit-btn:hover::before {
+        left: 100%;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    }
+    
+    .submit-btn:active {
+        transform: translateY(-1px);
+    }
+    
+    .popular-destinations {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .destinations-title {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    .destination-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        justify-content: center;
+    }
+    
+    .destination-chip {
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .destination-chip:hover {
+        background: rgba(102, 126, 234, 0.2);
+        border-color: #667eea;
+        color: #fff;
+        transform: translateY(-2px);
+    }
+    
+    .spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top: 3px solid #fff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .submit-btn.loading .spinner {
+        display: block;
+    }
+    
+    .submit-btn.loading .btn-text {
+        display: none;
+    }
+    
+    @media (max-width: 968px) {
+        .content-wrapper {
+            grid-template-columns: 1fr;
+            gap: 3rem;
+        }
+        
+        .hero-title {
+            font-size: 2.8rem;
+        }
+        
+        .features {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .hero-title {
+            font-size: 2.2rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.1rem;
+        }
+        
+        .form-container {
+            padding: 2rem;
+        }
+        
+        main {
+            padding: 5rem 1rem 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-animation"></div>
+<div class="floating-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+</div>
+
+<div class="content-wrapper">
+    <section class="hero-section">
+        <h1 class="hero-title">
+            Your AI Travel<br>
+            <span style="background: linear-gradient(135deg, #f093fb, #f5576c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Companion</span>
+        </h1>
+        <p class="hero-subtitle">
+            Create personalized itineraries in seconds with our intelligent travel planner. 
+            Discover hidden gems, optimize your routes, and make unforgettable memories.
+        </p>
+        
+        <div class="features">
+            <div class="feature">
+                <i class="fas fa-robot"></i>
+                <span class="feature-text">AI-Powered</span>
+            </div>
+            <div class="feature">
+                <i class="fas fa-clock"></i>
+                <span class="feature-text">Instant Results</span>
+            </div>
+            <div class="feature">
+                <i class="fas fa-map-marked-alt"></i>
+                <span class="feature-text">Personalized Routes</span>
+            </div>
+        </div>
+    </section>
+    
+    <section class="form-section">
+        <div class="form-container">
+            <div class="form-header">
+                <h2 class="form-title">Plan Your Dream Trip</h2>
+                <p class="form-subtitle">Answer a few questions and get your perfect itinerary</p>
+            </div>
+            
+            <form method="POST" action="/generate_itinerary" id="itineraryForm">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Destination
+                    </label>
+                    <input 
+                        type="text" 
+                        id="city" 
+                        name="city" 
+                        class="form-input"
+                        placeholder="Where do you want to go? (e.g., Paris, Tokyo, Goa)"
+                        required
+                    />
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-calendar-alt"></i>
+                        Trip Duration
+                    </label>
+                    <input 
+                        type="number" 
+                        id="days" 
+                        name="days" 
+                        class="form-input"
+                        placeholder="How many days?"
+                        min="1" 
+                        max="30"
+                        required
+                    />
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-heart"></i>
+                        Travel Style
+                    </label>
+                    <select id="preference" name="preference" class="form-select" required>
+                        <option value="">Choose your travel style...</option>
+                        <option value="adventure">🧗 Adventure & Thrill</option>
+                        <option value="relaxation">🌴 Relaxation & Wellness</option>
+                        <option value="culture">🏛️ Culture & History</option>
+                        <option value="food">🍜 Food & Culinary</option>
+                        <option value="nature">🌿 Nature & Wildlife</option>
+                        <option value="romance">💕 Romance & Honeymoon</option>
+                        <option value="family">👨‍👩‍👧‍👦 Family Fun</option>
+                        <option value="budget">💸 Budget Travel</option>
+                        <option value="luxury">💎 Luxury Experience</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-wallet"></i>
+                        Budget (₹)
+                    </label>
+                    <input 
+                        type="number" 
+                        id="budget" 
+                        name="budget" 
+                        class="form-input"
+                        placeholder="What's your total budget?"
+                        required
+                    />
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span class="btn-text">
+                        <i class="fas fa-magic"></i>
+                        Generate My Itinerary
+                    </span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+            
+            <div class="popular-destinations">
+                <p class="destinations-title">Popular Destinations</p>
+                <div class="destination-chips">
+                    <div class="destination-chip" onclick="setDestination('Goa')">🏖️ Goa</div>
+                    <div class="destination-chip" onclick="setDestination('Kerala')">🌴 Kerala</div>
+                    <div class="destination-chip" onclick="setDestination('Rajasthan')">🏰 Rajasthan</div>
+                    <div class="destination-chip" onclick="setDestination('Himalayas')">🏔️ Himalayas</div>
+                    <div class="destination-chip" onclick="setDestination('Paris')">🗼 Paris</div>
+                    <div class="destination-chip" onclick="setDestination('Tokyo')">🗾 Tokyo</div>
+                    <div class="destination-chip" onclick="setDestination('Bali')">🏝️ Bali</div>
+                    <div class="destination-chip" onclick="setDestination('Dubai')">🏙️ Dubai</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function setDestination(destination) {
+        document.getElementById('city').value = destination;
+        const input = document.getElementById('city');
+        input.style.transform = 'scale(1.05)';
+        input.style.borderColor = '#667eea';
+        setTimeout(() => {
+            input.style.transform = 'scale(1)';
+        }, 200);
+    }
+    
+    document.getElementById('itineraryForm').addEventListener('submit', function(e) {
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        const shapes = document.querySelectorAll('.shape');
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+        
+        shapes.forEach((shape, index) => {
+            const speed = (index + 1) * 20;
+            const xOffset = (x - 0.5) * speed;
+            const yOffset = (y - 0.5) * speed;
+            
+            shape.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
+        });
+    });
+    
+    window.addEventListener('load', () => {
+        document.getElementById('city').focus();
+    });
+</script>
+{% endblock %}

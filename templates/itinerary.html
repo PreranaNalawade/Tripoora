@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}My Itineraries - Tripoora{% endblock %}
+
+{% block content %}
+<div style="min-height: calc(100vh - 160px); background: #f8fafc; padding: 2rem;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <!-- Header Section -->
+        <div style="text-align: center; margin-bottom: 3rem; padding: 2rem 0;">
+            <h1 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--dark-text); margin-bottom: 0.5rem; font-weight: 700;">
+                Travel Itineraries
+            </h1>
+            <p style="color: var(--gray-text); font-size: 1.1rem; margin-bottom: 2rem;">Your personalized travel plans</p>
+            <a href="{{ url_for('generate_itinerary_page') }}" class="btn btn-primary" style="padding: 0.75rem 2rem; font-size: 1rem;">
+                <span style="margin-right: 0.5rem;">+</span> Create New Itinerary
+            </a>
+        </div>
+
+        {% if itineraries %}
+            <!-- Itinerary Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+                {% for itinerary in itineraries %}
+                    <div style="background: white; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #f1f5f9; position: relative;">
+                        <!-- Card Header with Gradient Background -->
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); padding: 2.5rem; color: white; position: relative; overflow: hidden;">
+                            <!-- Decorative Pattern -->
+                            <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 20px 20px; pointer-events: none;"></div>
+                            
+                            <!-- Duration Badge -->
+                            <div style="position: absolute; top: 1.5rem; right: 1.5rem; background: rgba(255,255,255,0.95); color: #667eea; padding: 0.75rem 1.25rem; border-radius: 25px; font-size: 0.85rem; font-weight: 700; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(102,126,234,0.3);">
+                                {{ itinerary.days }} DAYS
+                            </div>
+                            
+                            <!-- Destination Name -->
+                            <h3 style="font-size: 1.8rem; margin-bottom: 0.75rem; font-weight: 700; position: relative; z-index: 1;">
+                                {{ itinerary.city }}
+                            </h3>
+                            
+                            <!-- Date with Icon -->
+                            {% if itinerary.created_at %}
+                                <div style="display: flex; align-items: center; gap: 0.5rem; opacity: 0.95; font-size: 0.9rem; position: relative; z-index: 1;">
+                                    <span style="width: 20px; height: 20px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">📅</span>
+                                    {{ itinerary.created_at[:10] }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Card Body -->
+                        <div style="padding: 2.5rem;">
+                            <!-- Section Title -->
+                            <div style="margin-bottom: 2rem;">
+                                <h4 style="color: #1a202c; margin-bottom: 1.25rem; font-size: 1.2rem; font-weight: 600; display: flex; align-items: center;">
+                                    <span style="width: 5px; height: 28px; background: linear-gradient(135deg, #667eea, #764ba2); margin-right: 1rem; border-radius: 3px; box-shadow: 0 2px 8px rgba(102,126,234,0.3);"></span>
+                                    Travel Itinerary
+                                </h4>
+                                
+                                <!-- Itinerary Content -->
+                                <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 2rem; border-radius: 16px; border-left: 4px solid #667eea; position: relative; overflow: hidden;">
+                                    <!-- Decorative Corner -->
+                                    <div style="position: absolute; top: 0; right: 0; width: 60px; height: 60px; background: linear-gradient(135deg, transparent 50%, rgba(102,126,234,0.1) 50%); border-radius: 0 0 0 60px;"></div>
+                                    
+                                    <div style="white-space: pre-wrap; color: #475569; line-height: 1.8; font-size: 0.95rem; max-height: 280px; overflow-y: auto; padding-right: 1rem; position: relative; z-index: 1;">
+                                        {{ itinerary.plan }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <button onclick="copyItinerary({{ loop.index0 }})" style="padding: 1rem; border: 2px solid #e2e8f0; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); color: #1a202c; border-radius: 12px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                                    <span style="position: relative; z-index: 1; display: flex; align-items: center;">
+                                        <span style="margin-right: 0.75rem; font-size: 1.1rem;">📋</span> 
+                                        Copy Plan
+                                    </span>
+                                </button>
+                                <button onclick="shareItinerary({{ loop.index0 }})" style="padding: 1rem; border: 2px solid #e2e8f0; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); color: #1a202c; border-radius: 12px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                                    <span style="position: relative; z-index: 1; display: flex; align-items: center;">
+                                        <span style="margin-right: 0.75rem; font-size: 1.1rem;">🔗</span> 
+                                        Share
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Enhanced Hover Effects -->
+                        <style>
+                            div[style*="grid-template-columns"] > div:hover {
+                                transform: translateY(-8px) scale(1.02);
+                                box-shadow: 0 20px 40px rgba(0,0,0,0.18);
+                                border-color: #667eea;
+                            }
+                            
+                            div[style*="grid-template-columns"] > div:hover button {
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                                border-color: #667eea;
+                                transform: translateY(-2px);
+                                box-shadow: 0 8px 20px rgba(102,126,234,0.4);
+                            }
+                            
+                            div[style*="grid-template-columns"] > div:hover button::before {
+                                transform: translateX(0);
+                            }
+                            
+                            div[style*="grid-template-columns"] > div:hover button::after {
+                                transform: translateY(0);
+                            }
+                            
+                            /* Button shine effect */
+                            div[style*="grid-template-columns"] > div button::before {
+                                content: '';
+                                position: absolute;
+                                top: 0;
+                                left: -100%;
+                                width: 100%;
+                                height: 100%;
+                                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                                transition: left 0.5s;
+                            }
+                            
+                            div[style*="grid-template-columns"] > div button::after {
+                                content: '';
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+                                background: linear-gradient(0deg, transparent, rgba(255,255,255,0.1), transparent);
+                                transform: translateY(-100%);
+                                transition: transform 0.5s;
+                            }
+                        </style>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary-color), #ff5a26); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; font-size: 2rem;">
+                    🗺️
+                </div>
+                <h2 style="color: var(--dark-text); margin-bottom: 1rem; font-size: 1.5rem;">No Itineraries Yet</h2>
+                <p style="color: var(--gray-text); margin-bottom: 2rem; font-size: 1rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+                    Start planning your amazing journey through Maharashtra with our AI-powered itinerary generator.
+                </p>
+                <a href="{{ url_for('generate_itinerary_page') }}" class="btn btn-primary" style="padding: 0.75rem 2rem; font-size: 1rem;">
+                    Create Your First Itinerary
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Hidden data for JavaScript -->
+<script>
+    window.itinerariesData = {{ itineraries|tojson }};
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyItinerary(index) {
+    const plan = window.itinerariesData[index].plan;
+    
+    navigator.clipboard.writeText(plan).then(() => {
+        showNotification('Itinerary copied to clipboard!', 'success');
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+        showNotification('Failed to copy itinerary', 'error');
+    });
+}
+
+function shareItinerary(index) {
+    const itinerary = window.itinerariesData[index];
+    const shareText = `My ${itinerary.days}-day trip to ${itinerary.city}!\n\n${itinerary.plan}`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: `${itinerary.city} Itinerary - ${itinerary.days} Days`,
+            text: shareText
+        }).then(() => {
+            showNotification('Itinerary shared successfully!', 'success');
+        }).catch(err => {
+            console.log('Share cancelled or failed:', err);
+        });
+    } else {
+        copyItinerary(index);
+        showNotification('Link copied to clipboard!', 'info');
+    }
+}
+
+function showNotification(message, type) {
+    if (window.Tripoora) {
+        Tripoora.showToast(message, type);
+    } else {
+        // Fallback notification
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+}
+
+// Add entrance animation
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('div[style*="grid-template-columns"] > div');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+
+<style>
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+</style>
+{% endblock %}

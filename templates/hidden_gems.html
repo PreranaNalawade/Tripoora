@@ -1,0 +1,502 @@
+{% extends "base.html" %}
+
+{% set page = 'hidden_gems' %}
+
+{% block title %}Hidden Gems - Discover Offbeat Places{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --primary-color: #FF6B6B;
+    --primary-hover: #FF5252;
+    --accent-color: #4ECDC4;
+    --dark-text: #2c3e50;
+    --gray-text: #666;
+    --light-bg: #f8f9fa;
+    --white: #fff;
+    --shadow: 0 10px 40px rgba(0,0,0,0.1);
+    --shadow-lg: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+/* Hidden Gems Specific Styles */
+.hero-section {
+    background: linear-gradient(135deg, #FF6B6B, #9B59B6);
+    color: white;
+    padding: 6rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 2px, transparent 2px);
+    background-size: 50px 50px;
+    animation: movePattern 30s linear infinite;
+}
+
+@keyframes movePattern {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+.hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.hero-subtitle {
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.search-section {
+    background: white;
+    padding: 3rem 2rem;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+}
+
+.search-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.search-form {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 1rem;
+    align-items: start;
+}
+
+.search-input {
+    padding: 1rem 1.5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 127, 80, 0.1);
+}
+
+.category-select {
+    padding: 1rem 1.5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.category-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.search-btn {
+    padding: 1rem 2rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.search-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+.search-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Category Pills */
+.category-pills {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+}
+
+.category-pill {
+    padding: 0.5rem 1.2rem;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.category-pill:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.category-pill.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Hidden Gems Cards */
+.gems-section {
+    padding: 4rem 2rem;
+    background: var(--light-bg);
+}
+
+.gems-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.gem-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+.gem-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+}
+
+.gem-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.gem-content {
+    padding: 1.5rem;
+}
+
+.gem-category {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.gem-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dark-text);
+    margin-bottom: 0.5rem;
+}
+
+.gem-location {
+    color: var(--gray-text);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.gem-description {
+    color: var(--gray-text);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.gem-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 0.8rem 1rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.btn-add-itinerary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-add-itinerary:hover {
+    background: var(--primary-hover);
+}
+
+/* Loading State */
+.loading {
+    text-align: center;
+    padding: 3rem;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--gray-text);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .search-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .gems-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <h1 class="hero-title">🌟 Hidden Gems</h1>
+        <p class="hero-subtitle">Discover offbeat places and secret spots in Maharashtra</p>
+    </div>
+</section>
+
+<!-- Search Section -->
+<section class="search-section">
+    <div class="search-container">
+        <form class="search-form" id="searchForm">
+            <input 
+                type="text" 
+                class="search-input" 
+                id="destinationInput" 
+                placeholder="Enter city name (e.g., Mumbai, Pune, Nashik)"
+            >
+            <select class="category-select" id="categorySelect">
+                <option value="">All Categories</option>
+                <option value="Nature">🌿 Nature</option>
+                <option value="Cultural">🏛️ Cultural</option>
+                <option value="Adventure">🏔️ Adventure</option>
+                <option value="Food Spots">🍜 Food Spots</option>
+            </select>
+            <button type="submit" class="search-btn">
+                🔍 Search
+            </button>
+        </form>
+        
+        <!-- Category Pills -->
+        <div class="category-pills">
+            <div class="category-pill" data-category="Nature">🌿 Nature</div>
+            <div class="category-pill" data-category="Cultural">🏛️ Cultural</div>
+            <div class="category-pill" data-category="Adventure">🏔️ Adventure</div>
+            <div class="category-pill" data-category="Food Spots">🍜 Food</div>
+        </div>
+    </div>
+</section>
+
+<!-- Hidden Gems Section -->
+<section class="gems-section">
+    <div class="container">
+        <!-- Loading State -->
+        <div class="loading" id="loadingState" style="display: none;">
+            <div class="spinner"></div>
+            <p>Discovering hidden gems...</p>
+        </div>
+        
+        <!-- Gems Grid -->
+        <div class="gems-grid" id="gemsGrid"></div>
+        
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+            <div class="empty-icon">🗺️</div>
+            <h3>No Hidden Gems Found</h3>
+            <p>Click on a category above or search for a city to discover hidden gems!</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentGems = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupEventListeners();
+    loadAllGems();
+});
+
+function setupEventListeners() {
+    // Search form
+    document.getElementById('searchForm').addEventListener('submit', searchGems);
+    
+    // Category pills - Click to show all gems of that category
+    document.querySelectorAll('.category-pill').forEach(pill => {
+        pill.addEventListener('click', function() {
+            document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+            
+            const category = this.dataset.category;
+            document.getElementById('categorySelect').value = category;
+            
+            // Search by category only (no location required)
+            searchByCategory(category);
+        });
+    });
+}
+
+async function loadAllGems() {
+    try {
+        const response = await fetch('/api/hidden-gems/get');
+        const data = await response.json();
+        
+        if (data.success && data.gems.length > 0) {
+            displayGems(data.gems);
+            document.getElementById('emptyState').style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error loading gems:', error);
+    }
+}
+
+async function searchByCategory(category) {
+    document.getElementById('loadingState').style.display = 'block';
+    document.getElementById('gemsGrid').innerHTML = '';
+    document.getElementById('emptyState').style.display = 'none';
+    
+    try {
+        const url = `/api/hidden-gems/get?category=${encodeURIComponent(category)}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        document.getElementById('loadingState').style.display = 'none';
+        
+        if (data.success && data.gems.length > 0) {
+            displayGems(data.gems);
+        } else {
+            document.getElementById('emptyState').style.display = 'block';
+        }
+    } catch (error) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'block';
+    }
+}
+
+async function searchGems(e) {
+    e.preventDefault();
+    
+    const destination = document.getElementById('destinationInput').value.trim();
+    const category = document.getElementById('categorySelect').value;
+    
+    document.getElementById('loadingState').style.display = 'block';
+    document.getElementById('gemsGrid').innerHTML = '';
+    document.getElementById('emptyState').style.display = 'none';
+    
+    try {
+        let url = '/api/hidden-gems/get?';
+        if (destination) url += `location=${encodeURIComponent(destination)}&`;
+        if (category) url += `category=${encodeURIComponent(category)}&`;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        document.getElementById('loadingState').style.display = 'none';
+        
+        if (data.success && data.gems.length > 0) {
+            displayGems(data.gems);
+        } else {
+            document.getElementById('emptyState').style.display = 'block';
+        }
+    } catch (error) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'block';
+    }
+}
+
+function displayGems(gems) {
+    const grid = document.getElementById('gemsGrid');
+    
+    if (gems.length === 0) {
+        document.getElementById('emptyState').style.display = 'block';
+        return;
+    }
+    
+    document.getElementById('emptyState').style.display = 'none';
+    
+    grid.innerHTML = gems.map(gem => {
+        const imageUrl = gem.image_url || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80';
+        
+        return `
+        <div class="gem-card">
+            <img src="${imageUrl}" alt="${gem.name}" class="gem-image" loading="lazy">
+            <div class="gem-content">
+                <span class="gem-category">${gem.category}</span>
+                <h3 class="gem-name">${gem.name}</h3>
+                <div class="gem-location">📍 ${gem.location}</div>
+                <p class="gem-description">${gem.description}</p>
+                
+                <div class="gem-actions">
+                    <button class="action-btn btn-add-itinerary" onclick="viewDetails('${gem.name}', '${gem.location}')">
+                        📍 View Details
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    }).join('');
+}
+
+function viewDetails(name, location) {
+    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ', ' + location + ', Maharashtra')}`;
+    window.open(googleMapsUrl, '_blank');
+}
+</script>
+{% endblock %}
