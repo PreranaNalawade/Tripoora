@@ -14,7 +14,7 @@ def _as_bool(name: str, default: bool = False) -> bool:
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-me")
     SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL", "postgresql://postgres:123@localhost:5432/touristdb"
+        "DATABASE_URL", "postgresql://postgres:Tripoora%40123@db.bisaoruhwihcmtbhkcxk.supabase.co:5432/postgres"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
