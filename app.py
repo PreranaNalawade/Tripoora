@@ -302,6 +302,12 @@ def search_buses():
             "message": f"Error searching buses: {str(e)}"
         })
 
+
+
+@app.route("/healthz")
+def health():
+    return "OK", 200
+    
 # ==================== HIDDEN GEMS ====================
 def login_required(f):
     @wraps(f)
