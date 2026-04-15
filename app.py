@@ -30,6 +30,9 @@ import socket
 socket.setdefaulttimeout(15)
 import threading
 
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+
 # Simple cache for API responses
 _api_cache = {}
 _cache_timeout = 300  # 5 minutes
@@ -577,6 +580,8 @@ def validate_password_requirements(password):
 
 def cleanup_otp_sessions(email):
     OTPVerification.query.filter_by(email=email).update({"is_used": True})
+    db.session.commit()
+    
 def send_otp_email(email, otp):
     """Send OTP email to user"""
     try:
@@ -636,52 +641,43 @@ def send_otp_email(email, otp):
 def send_otp():
     if request.method == "POST":
         email = request.form.get("email", "").strip()
-        
+
         if not email or '@' not in email:
             return jsonify({"success": False, "message": "Invalid email address"})
-        
-        # Check if user already exists
+
         if User.query.filter_by(email=email).first():
             return jsonify({"success": False, "message": "Email already registered"})
-        
+
         try:
-            # Generate OTP
             import random
             otp = str(random.randint(100000, 999999))
-            
-            # Store OTP in database
+
             otp_record = OTPVerification(
                 email=email,
                 otp=otp,
-                expires_at=datetime.utcnow().replace(hour=23, minute=59)  # Expires at end of day
+                expires_at=datetime.utcnow().replace(hour=23, minute=59)
             )
             db.session.add(otp_record)
             db.session.commit()
-            
-            # Send OTP via email
-            try:
-                send_otp_email(email, otp)
-                return jsonify({
-                    "success": True, 
-                    "message": "OTP sent successfully to your email"
-                })
-            except Exception as e:
-                print(f"❌ Failed to send OTP email: {e}")
-                return jsonify({
-                    "success": False, 
-                    "message": "Failed to send OTP email. Please try again."
-                })
-            
+
+            # ✅ SAFE THREADING (INSIDE FUNCTION ONLY)
+            threading.Thread(
+                target=send_otp_email,
+                args=(email, otp),
+                daemon=True
+            ).start()
+
+            return jsonify({
+                "success": True,
+                "message": "OTP sent successfully to your email"
+            })
+
         except Exception as e:
+            print(f"❌ Error: {e}")
             return jsonify({"success": False, "message": "Failed to send OTP"})
-    
+
     return jsonify({"success": False, "message": "Invalid request"})
 
-threading.Thread(
-    target=send_otp_email,
-    args=(email, otp),
-    daemon=True
-).start()
 
 @app.route("/api/verify-otp", methods=["POST"])
 def verify_otp():
