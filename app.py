@@ -29,6 +29,11 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 import socket
 socket.setdefaulttimeout(15)
 import threading
+import smtplib
+import threading
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from datetime import datetime, timedelta
 
 EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
@@ -582,25 +587,23 @@ def cleanup_otp_sessions(email):
     OTPVerification.query.filter_by(email=email).update({"is_used": True})
     db.session.commit()
   def send_otp_email(email, otp):
-    """Send OTP email to user (safe + Render-friendly)"""
+    """Send OTP email safely (Render-friendly)"""
     try:
         print(f"🔍 Debug: Sending OTP email to {email}")
-        print(f"🔍 Debug: Email config - ADDRESS: {EMAIL_ADDRESS}, PASSWORD: {'SET' if EMAIL_PASSWORD else 'NOT SET'}")
 
         msg = MIMEMultipart()
         msg['From'] = EMAIL_ADDRESS
         msg['To'] = email
-        msg['Subject'] = "🔐 Your OTP Verification Code - Tripoora"
+        msg['Subject'] = "🔐 Tripoora OTP Verification Code"
 
         html_body = f"""
-        <!DOCTYPE html>
         <html>
-        <body style="font-family: Arial; background:#f8f9fa; padding:20px;">
-            <div style="max-width:600px;margin:auto;background:white;padding:20px;border-radius:10px;">
-                <h2 style="color:#ff7f50;">🔐 Tripoora OTP Verification</h2>
+        <body style="font-family: Arial; padding:20px;">
+            <div style="max-width:500px;margin:auto;padding:20px;border:1px solid #ddd;border-radius:10px;">
+                <h2 style="color:#ff7f50;">Tripoora OTP Verification</h2>
                 <p>Your OTP code is:</p>
                 <h1 style="letter-spacing:5px;color:#3d5a4a;">{otp}</h1>
-                <p>This OTP will expire soon. Do not share it with anyone.</p>
+                <p>This OTP will expire in 10 minutes.</p>
             </div>
         </body>
         </html>
@@ -608,110 +611,94 @@ def cleanup_otp_sessions(email):
 
         msg.attach(MIMEText(html_body, "html"))
 
-        # ✅ FIX 1: safer connection (no duplicate connect)
-        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=10)
-
-        print("🔍 Debug: Connecting SMTP...")
+        # SMTP connection (IMPORTANT FIX)
+        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=20)
         server.ehlo()
-
-        print("🔍 Debug: Starting TLS...")
         server.starttls()
         server.ehlo()
 
-        print("🔍 Debug: Logging in...")
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
 
-        print("🔍 Debug: Sending email...")
         server.send_message(msg)
-
         server.quit()
 
-        print(f"✅ OTP email sent successfully to {email}")
+        print("✅ OTP email sent successfully")
         return True
 
     except Exception as e:
-        print(f"❌ Email sending failed: {e}")
+        print(f"❌ Email failed: {e}")
         return False
-
 
 # API endpoints for frontend
 @app.route("/api/send-otp", methods=["POST"])
 def send_otp():
     email = request.form.get("email", "").strip()
 
-    if not email or '@' not in email:
-        return jsonify({"success": False, "message": "Invalid email address"})
+    if not email or "@" not in email:
+        return jsonify({"success": False, "message": "Invalid email"})
 
     if User.query.filter_by(email=email).first():
-        return jsonify({"success": False, "message": "Email already registered"})
+        return jsonify({"success": False, "message": "Email already exists"})
 
     try:
         import random
-        from datetime import datetime, timedelta
 
         otp = str(random.randint(100000, 999999))
 
-        from datetime import datetime, timedelta
+        # ✅ FIXED EXPIRY (CORRECT PLACEMENT)
+        expires_at = datetime.utcnow() + timedelta(minutes=10)
 
-expires_at = datetime.utcnow() + timedelta(minutes=10)
-
-otp_record = OTPVerification(
-    email=email,
-    otp=otp,
-    expires_at=expires_at
-)
+        otp_record = OTPVerification(
+            email=email,
+            otp=otp,
+            expires_at=expires_at,
+            is_used=False
+        )
 
         db.session.add(otp_record)
         db.session.commit()
 
-        # ✅ SAFE EMAIL THREAD
-        def safe_send_email(email, otp):
-            try:
-                send_otp_email(email, otp)
-            except Exception as e:
-                print(f"❌ Background email failed: {e}")
-
+        # ✅ background email (safe for Render)
         threading.Thread(
-            target=safe_send_email,
+            target=send_otp_email,
             args=(email, otp),
             daemon=True
         ).start()
 
         return jsonify({
             "success": True,
-            "message": "OTP generated successfully"
+            "message": "OTP sent successfully"
         })
 
     except Exception as e:
-        print(f"❌ Error: {e}")
-        return jsonify({"success": False, "message": "Failed to send OTP"})
-        
+        print("❌ OTP Error:", e)
+        return jsonify({"success": False, "message": "Server error"})
+
 @app.route("/api/verify-otp", methods=["POST"])
 def verify_otp():
-    if request.method == "POST":
-        email = request.form.get("email", "").strip()
-        otp = request.form.get("otp", "").strip()
-        
-        if not email or not otp:
-            return jsonify({"success": False, "message": "Email and OTP required"})
-        
-        # Verify OTP
-        otp_record = OTPVerification.query.filter_by(
-            email=email,
-            otp=otp,
-            is_used=False
-        ).first()
-        
-        if not otp_record or otp_record.expires_at < datetime.utcnow():
-            return jsonify({"success": False, "message": "Invalid or expired OTP"})
-        
-        # Mark OTP as used
-        otp_record.is_used = True
-        db.session.commit()
-        
-        return jsonify({"success": True, "message": "OTP verified successfully"})
-    
-    return jsonify({"success": False, "message": "Invalid request"})
+    email = request.form.get("email", "").strip()
+    otp = request.form.get("otp", "").strip()
+
+    if not email or not otp:
+        return jsonify({"success": False, "message": "Missing data"})
+
+    otp_record = OTPVerification.query.filter_by(
+        email=email,
+        otp=otp,
+        is_used=False
+    ).first()
+
+    if not otp_record:
+        return jsonify({"success": False, "message": "Invalid OTP"})
+
+    if otp_record.expires_at < datetime.utcnow():
+        return jsonify({"success": False, "message": "OTP expired"})
+
+    otp_record.is_used = True
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "OTP verified"})
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
