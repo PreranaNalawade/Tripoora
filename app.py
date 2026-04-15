@@ -583,7 +583,6 @@ def validate_password_requirements(password):
 
 def cleanup_otp_sessions(email):
     OTPVerification.query.filter_by(email=email).update({"is_used": True})
-
 def send_otp_email(email, otp):
     """Send OTP email to user"""
     try:
@@ -612,25 +611,24 @@ def send_otp_email(email, otp):
 
         msg.attach(MIMEText(html_body, 'html'))
 
-        # 🔥 IMPORTANT FIX: add timeout
+        # 🔥 SMTP CONNECTION (FIXED INDENTATION)
         server = smtplib.SMTP("smtp.gmail.com", 587, timeout=15)
-server.set_debuglevel(0)
 
-print("🔍 Debug: Connecting SMTP...")
-server.connect("smtp.gmail.com", 587)
+        print("🔍 Debug: Connecting SMTP...")
+        server.connect("smtp.gmail.com", 587)
 
-print("🔍 Debug: Starting TLS...")
-server.ehlo()
-server.starttls()
-server.ehlo()
+        print("🔍 Debug: Starting TLS...")
+        server.ehlo()
+        server.starttls()
+        server.ehlo()
 
-print("🔍 Debug: Logging in...")
-server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        print("🔍 Debug: Logging in...")
+        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
 
-print("🔍 Debug: Sending email...")
-server.send_message(msg)
+        print("🔍 Debug: Sending email...")
+        server.send_message(msg)
 
-server.quit()
+        server.quit()
 
         print(f"✅ OTP email sent successfully to {email}")
         return True
@@ -638,7 +636,7 @@ server.quit()
     except Exception as e:
         print(f"❌ Email sending failed: {e}")
         return False
-
+        
 # API endpoints for frontend
 @app.route("/api/send-otp", methods=["POST"])
 def send_otp():
