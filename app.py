@@ -26,6 +26,15 @@ import urllib.parse
 from bs4 import BeautifulSoup
 from external_apis import external_apis
 from werkzeug.middleware.proxy_fix import ProxyFix
+import socket
+socket.setdefaulttimeout(15)
+import threading
+
+threading.Thread(
+    target=send_otp_email,
+    args=(email, otp),
+    daemon=True
+).start()
 
 # Simple cache for API responses
 _api_cache = {}
@@ -604,18 +613,24 @@ def send_otp_email(email, otp):
         msg.attach(MIMEText(html_body, 'html'))
 
         # 🔥 IMPORTANT FIX: add timeout
-        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=15)
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
+        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=15)
+server.set_debuglevel(0)
 
-        print("🔍 Debug: Attempting login to Gmail...")
-        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+print("🔍 Debug: Connecting SMTP...")
+server.connect("smtp.gmail.com", 587)
 
-        print("🔍 Debug: Sending email...")
-        server.send_message(msg)
+print("🔍 Debug: Starting TLS...")
+server.ehlo()
+server.starttls()
+server.ehlo()
 
-        server.quit()
+print("🔍 Debug: Logging in...")
+server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+
+print("🔍 Debug: Sending email...")
+server.send_message(msg)
+
+server.quit()
 
         print(f"✅ OTP email sent successfully to {email}")
         return True
