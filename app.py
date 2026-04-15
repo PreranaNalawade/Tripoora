@@ -581,19 +581,17 @@ def validate_password_requirements(password):
 def cleanup_otp_sessions(email):
     OTPVerification.query.filter_by(email=email).update({"is_used": True})
     db.session.commit()
-    
-def send_otp_email(email, otp):
-    """Send OTP email to user"""
+  def send_otp_email(email, otp):
+    """Send OTP email to user (safe + Render-friendly)"""
     try:
         print(f"🔍 Debug: Sending OTP email to {email}")
-        print(f"🔍 Debug: Email config - ADDRESS: {EMAIL_ADDRESS}, PASSWORD: {'SET' if EMAIL_PASSWORD and EMAIL_PASSWORD != 'your_gmail_app_password' else 'NOT SET'}")
+        print(f"🔍 Debug: Email config - ADDRESS: {EMAIL_ADDRESS}, PASSWORD: {'SET' if EMAIL_PASSWORD else 'NOT SET'}")
 
         msg = MIMEMultipart()
         msg['From'] = EMAIL_ADDRESS
         msg['To'] = email
         msg['Subject'] = "🔐 Your OTP Verification Code - Tripoora"
 
-        # HTML body
         html_body = f"""
         <!DOCTYPE html>
         <html>
@@ -608,16 +606,15 @@ def send_otp_email(email, otp):
         </html>
         """
 
-        msg.attach(MIMEText(html_body, 'html'))
+        msg.attach(MIMEText(html_body, "html"))
 
-        # 🔥 SMTP CONNECTION (FIXED INDENTATION)
-        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=15)
+        # ✅ FIX 1: safer connection (no duplicate connect)
+        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=10)
 
         print("🔍 Debug: Connecting SMTP...")
-        server.connect("smtp.gmail.com", 587)
+        server.ehlo()
 
         print("🔍 Debug: Starting TLS...")
-        server.ehlo()
         server.starttls()
         server.ehlo()
 
@@ -635,50 +632,60 @@ def send_otp_email(email, otp):
     except Exception as e:
         print(f"❌ Email sending failed: {e}")
         return False
-        
+
+
 # API endpoints for frontend
 @app.route("/api/send-otp", methods=["POST"])
 def send_otp():
-    if request.method == "POST":
-        email = request.form.get("email", "").strip()
+    email = request.form.get("email", "").strip()
 
-        if not email or '@' not in email:
-            return jsonify({"success": False, "message": "Invalid email address"})
+    if not email or '@' not in email:
+        return jsonify({"success": False, "message": "Invalid email address"})
 
-        if User.query.filter_by(email=email).first():
-            return jsonify({"success": False, "message": "Email already registered"})
+    if User.query.filter_by(email=email).first():
+        return jsonify({"success": False, "message": "Email already registered"})
 
-        try:
-            import random
-            otp = str(random.randint(100000, 999999))
+    try:
+        import random
+        from datetime import datetime, timedelta
 
-            otp_record = OTPVerification(
-                email=email,
-                otp=otp,
-                expires_at=datetime.utcnow().replace(hour=23, minute=59)
-            )
-            db.session.add(otp_record)
-            db.session.commit()
+        otp = str(random.randint(100000, 999999))
 
-            # ✅ SAFE THREADING (INSIDE FUNCTION ONLY)
-            threading.Thread(
-                target=send_otp_email,
-                args=(email, otp),
-                daemon=True
-            ).start()
+        from datetime import datetime, timedelta
 
-            return jsonify({
-                "success": True,
-                "message": "OTP sent successfully to your email"
-            })
+expires_at = datetime.utcnow() + timedelta(minutes=10)
 
-        except Exception as e:
-            print(f"❌ Error: {e}")
-            return jsonify({"success": False, "message": "Failed to send OTP"})
+otp_record = OTPVerification(
+    email=email,
+    otp=otp,
+    expires_at=expires_at
+)
 
-    return jsonify({"success": False, "message": "Invalid request"})
+        db.session.add(otp_record)
+        db.session.commit()
 
+        # ✅ SAFE EMAIL THREAD
+        def safe_send_email(email, otp):
+            try:
+                send_otp_email(email, otp)
+            except Exception as e:
+                print(f"❌ Background email failed: {e}")
 
+        threading.Thread(
+            target=safe_send_email,
+            args=(email, otp),
+            daemon=True
+        ).start()
+
+        return jsonify({
+            "success": True,
+            "message": "OTP generated successfully"
+        })
+
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return jsonify({"success": False, "message": "Failed to send OTP"})
+        
 @app.route("/api/verify-otp", methods=["POST"])
 def verify_otp():
     if request.method == "POST":
