@@ -580,6 +580,56 @@ def send_otp_email(email, otp):
     try:
         print(f"🔍 Debug: Sending OTP email to {email}")
         print(f"🔍 Debug: Email config - ADDRESS: {EMAIL_ADDRESS}, PASSWORD: {'SET' if EMAIL_PASSWORD and EMAIL_PASSWORD != 'your_gmail_app_password' else 'NOT SET'}")
+
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL_ADDRESS
+        msg['To'] = email
+        msg['Subject'] = "🔐 Your OTP Verification Code - Tripoora"
+
+        # HTML body
+        html_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <body style="font-family: Arial; background:#f8f9fa; padding:20px;">
+            <div style="max-width:600px;margin:auto;background:white;padding:20px;border-radius:10px;">
+                <h2 style="color:#ff7f50;">🔐 Tripoora OTP Verification</h2>
+                <p>Your OTP code is:</p>
+                <h1 style="letter-spacing:5px;color:#3d5a4a;">{otp}</h1>
+                <p>This OTP will expire soon. Do not share it with anyone.</p>
+            </div>
+        </body>
+        </html>
+        """
+
+        msg.attach(MIMEText(html_body, 'html'))
+
+        # 🔥 IMPORTANT FIX: add timeout
+        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=15)
+        server.ehlo()
+        server.starttls()
+        server.ehlo()
+
+        print("🔍 Debug: Attempting login to Gmail...")
+        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+
+        print("🔍 Debug: Sending email...")
+        server.send_message(msg)
+
+        server.quit()
+
+        print(f"✅ OTP email sent successfully to {email}")
+        return True
+
+    except Exception as e:
+        print(f"❌ Email sending failed: {e}")
+        return False
+
+
+def send_otp_email(email, otp):
+    """Send OTP email to user"""
+    try:
+        print(f"🔍 Debug: Sending OTP email to {email}")
+        print(f"🔍 Debug: Email config - ADDRESS: {EMAIL_ADDRESS}, PASSWORD: {'SET' if EMAIL_PASSWORD and EMAIL_PASSWORD != 'your_gmail_app_password' else 'NOT SET'}")
         
         msg = MIMEMultipart()
         msg['From'] = EMAIL_ADDRESS
