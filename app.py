@@ -30,12 +30,6 @@ import socket
 socket.setdefaulttimeout(15)
 import threading
 
-threading.Thread(
-    target=send_otp_email,
-    args=(email, otp),
-    daemon=True
-).start()
-
 # Simple cache for API responses
 _api_cache = {}
 _cache_timeout = 300  # 5 minutes
@@ -682,6 +676,12 @@ def send_otp():
             return jsonify({"success": False, "message": "Failed to send OTP"})
     
     return jsonify({"success": False, "message": "Invalid request"})
+
+threading.Thread(
+    target=send_otp_email,
+    args=(email, otp),
+    daemon=True
+).start()
 
 @app.route("/api/verify-otp", methods=["POST"])
 def verify_otp():
