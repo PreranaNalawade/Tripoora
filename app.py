@@ -586,47 +586,35 @@ def validate_password_requirements(password):
 def cleanup_otp_sessions(email):
     OTPVerification.query.filter_by(email=email).update({"is_used": True})
     db.session.commit()
-  def send_otp_email(email, otp):
-    """Send OTP email safely (Render-friendly)"""
+
+
+def send_otp_email(email, otp):
+    """Send OTP email safely"""
     try:
-        print(f"🔍 Debug: Sending OTP email to {email}")
+        print(f"🔍 Sending OTP to {email}")
 
         msg = MIMEMultipart()
         msg['From'] = EMAIL_ADDRESS
         msg['To'] = email
-        msg['Subject'] = "🔐 Tripoora OTP Verification Code"
+        msg['Subject'] = "Tripoora OTP"
 
-        html_body = f"""
-        <html>
-        <body style="font-family: Arial; padding:20px;">
-            <div style="max-width:500px;margin:auto;padding:20px;border:1px solid #ddd;border-radius:10px;">
-                <h2 style="color:#ff7f50;">Tripoora OTP Verification</h2>
-                <p>Your OTP code is:</p>
-                <h1 style="letter-spacing:5px;color:#3d5a4a;">{otp}</h1>
-                <p>This OTP will expire in 10 minutes.</p>
-            </div>
-        </body>
-        </html>
-        """
+        body = f"<h2>Your OTP: {otp}</h2>"
+        msg.attach(MIMEText(body, "html"))
 
-        msg.attach(MIMEText(html_body, "html"))
-
-        # SMTP connection (IMPORTANT FIX)
         server = smtplib.SMTP("smtp.gmail.com", 587, timeout=20)
         server.ehlo()
         server.starttls()
         server.ehlo()
 
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-
         server.send_message(msg)
         server.quit()
 
-        print("✅ OTP email sent successfully")
+        print("✅ Email sent")
         return True
 
     except Exception as e:
-        print(f"❌ Email failed: {e}")
+        print("❌ Email error:", e)
         return False
 
 # API endpoints for frontend
